@@ -1,0 +1,29 @@
+{{ define "app" }}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ template "title" . }} | Podcast Stats</title>
+  </head>
+
+  <body>
+    {{ template "the-header" . }}
+
+    {{ if .User.Email }}
+      <p>{{ .User.Email }}</p>
+    {{ else }}
+      <p>Not logged in</p>
+    {{ end }}
+
+    <main>
+      {{ with .Flash }}
+        <p>{{ . }}</p>
+      {{ end }}
+      
+      {{ template "main" . }}
+    </main>
+
+    {{ template "the-footer" . }}
+  </body>
+</html>
+{{ end }}

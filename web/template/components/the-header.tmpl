@@ -1,0 +1,26 @@
+{{ define "the-header" }}
+<header>
+  <nav>
+    <ul>
+      <li>
+        <a href="/">Home</a>
+      </li>
+      {{ if .User.Email }}
+        <li>
+          <form action="/logout" method="POST">
+            <button type="submit">Logout</a>
+          </form>
+        </li>
+      {{ else }}
+        <li>
+          <a href="/signup">Signup</a>
+        </li>
+
+        <li>
+          <a href="/login">Login</a>
+        </li>
+      {{ end }}
+    </ul>
+  </nav>
+</header>
+{{ end }}

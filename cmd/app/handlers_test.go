@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+// TestPing tests a GET request to /ping, just to check that the
+// application is running.
 func TestPing(t *testing.T) {
 	app := newTestApplication(t)
 	ts := newTestServer(t, app.routes())

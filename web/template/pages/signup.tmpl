@@ -1,0 +1,32 @@
+{{ template "app" . }}
+
+{{ define "title" }}Sign up{{ end }}
+
+{{ define "main" }}
+<div class="Signup">
+  <h1>Sign up</h1>
+  {{ with .Form }}
+    <form action="/signup" method="POST">
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" name="email" value='{{ .Get "email" }}' />
+        {{ with .Errors.Get "email" }}
+          <p>{{ . }}</p>
+        {{ end }}
+      </div>
+      
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" name="password" />
+        {{ with .Errors.Get "password" }}
+          <p>{{ . }}</p>
+        {{ end }}
+      </div>
+
+      <div class="field">
+        <button type="submit">Sign up</button>
+      </div>
+    </form>
+  {{ end }}
+</div>
+{{ end }}

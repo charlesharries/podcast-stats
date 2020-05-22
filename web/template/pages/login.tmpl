@@ -1,0 +1,30 @@
+{{ template "app" . }}
+
+{{ define "title" }}Sign up{{ end }}
+
+{{ define "main" }}
+<div class="Login">
+  <h1>Log in</h1>
+  {{ with .Form }}
+    <form action="/login" method="POST">
+      {{ with .Errors.Get "generic" }}
+        <div class="error">{{ . }}</div>
+      {{ end }}
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" name="email" />
+      </div>
+      
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" name="password" />
+      </div>
+
+      <div class="field">
+        <button type="submit">Login</button>
+      </div>
+    </form>
+  {{ end }}
+</div>
+{{ end }}
