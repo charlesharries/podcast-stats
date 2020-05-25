@@ -23,3 +23,15 @@ func (m *SubscriptionModel) Create(collectionID int, userID uint) error {
 
 	return nil
 }
+
+// Get finds a subscription by collectionID and userID.
+func (m *SubscriptionModel) Get(collectionID int, userID uint) (Subscription, error) {
+	var subscription, blank Subscription
+
+	err := m.DB.First(&subscription, "collection_id= ? AND user_id = ?", collectionID, userID).Error
+	if err != nil {
+		return blank, err
+	}
+
+	return subscription, nil
+}

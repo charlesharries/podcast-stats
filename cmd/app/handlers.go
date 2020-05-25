@@ -9,6 +9,7 @@ import (
 
 	"github.com/charlesharries/podcast-stats/pkg/forms"
 	"github.com/charlesharries/podcast-stats/pkg/models"
+	"github.com/jinzhu/gorm"
 )
 
 // ping just returns a 200 OK with body "OK" to show that our
@@ -146,6 +147,7 @@ func (app *application) subscribe(w http.ResponseWriter, r *http.Request) {
 	if !form.Valid() {
 		app.session.Put(r, "flash", "Couldn't subscribe you, sorry.")
 		http.Redirect(w, r, "/search?s="+url.QueryEscape(form.Get("search")), http.StatusSeeOther)
+		return
 	}
 
 	collectionID, err := strconv.Atoi(form.Get("collectionID"))
@@ -157,6 +159,20 @@ func (app *application) subscribe(w http.ResponseWriter, r *http.Request) {
 	currentUser := app.session.Get(r, "authenticatedUser").(TemplateUser)
 	if err != nil {
 		app.serverError(w, err)
+		return
+	}
+
+	// TODO(charles): Check if the current user is already subscribed
+	// to this podcast. If so, redirect back with a flash message.
+	subscription, err := app.subscriptions.Get(collectionID, currentUser.ID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		app.serverError(w, err)
+		return
+	}
+
+	if subscription.CollectionID == collectionID {
+		app.session.Put(r, "flash", fmt.Sprintf("Already subscribed to %q", form.Get("collectionName")))
+		http.Redirect(w, r, "/search?s="+url.QueryEscape(form.Get("search")), http.StatusSeeOther)
 		return
 	}
 
