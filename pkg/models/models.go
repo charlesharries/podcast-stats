@@ -28,7 +28,6 @@ type User struct {
 // Subscription represents a relationship between a user and a podcast.
 type Subscription struct {
 	gorm.Model
-	UserID       int    `gorm:"index:subscription_user_id"`
-	CollectionID string `gorm:"index:subscription_collection_id"`
-	Name         string
+	UserID       uint `gorm:"index:subscription_user_id"`
+	CollectionID int  `gorm:"index:subscription_collection_id"`
 }

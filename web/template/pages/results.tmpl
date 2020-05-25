@@ -3,11 +3,20 @@
 {{ define "title" }}Results{{ end }}
 
 {{ define "main" }}
-  <h1>Results</h1>
+  <h1>Results for {{ .Search }}</h1>
 
   <ul>
     {{ range .Results.Results }}
-      <li>{{ .CollectionName }}</li>
+      <li>
+        <span>{{ .CollectionName }}</span>
+        <form method="POST" action="/subscriptions">
+          <input type="hidden" name="collectionID" value='{{ .CollectionID }}' />
+          <input type="hidden" name="collectionName" value='{{ .CollectionName }}' />
+          <input type="hidden" name="search" value='{{ $.Search }}' />
+
+          <button type="submit">Add to library</button>
+        </form>
+      </li>
     {{ end }}
   </ul>
 {{ end }}

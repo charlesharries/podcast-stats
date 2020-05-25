@@ -21,6 +21,7 @@ type templateData struct {
 	Flash       string
 	Form        *forms.Form
 	Results     ITunesResult
+	Search      string
 	User        TemplateUser
 }
 

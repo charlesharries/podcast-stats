@@ -22,6 +22,7 @@ type application struct {
 	errorLog      *log.Logger
 	infoLog       *log.Logger
 	session       *sessions.Session
+	subscriptions *models.SubscriptionModel
 	templateCache map[string]*template.Template
 	users         *models.UserModel
 }
@@ -66,6 +67,7 @@ func main() {
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		session:       session,
+		subscriptions: &models.SubscriptionModel{DB: db},
 		templateCache: templateCache,
 		users:         &models.UserModel{DB: db},
 	}

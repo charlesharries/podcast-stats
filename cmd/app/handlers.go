@@ -2,7 +2,10 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"net/url"
+	"strconv"
 
 	"github.com/charlesharries/podcast-stats/pkg/forms"
 	"github.com/charlesharries/podcast-stats/pkg/models"
@@ -125,6 +128,45 @@ func (app *application) search(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.render(w, r, "results.tmpl", &templateData{
+		Search:  form.Get("s"),
 		Results: result,
 	})
+}
+
+// subscribe subscribes the currently logged in user to a podcast.
+func (app *application) subscribe(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	form.Required("collectionID", "collectionName")
+	if !form.Valid() {
+		app.session.Put(r, "flash", "Couldn't subscribe you, sorry.")
+		http.Redirect(w, r, "/search?s="+url.QueryEscape(form.Get("search")), http.StatusSeeOther)
+	}
+
+	collectionID, err := strconv.Atoi(form.Get("collectionID"))
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	currentUser := app.session.Get(r, "authenticatedUser").(TemplateUser)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	err = app.subscriptions.Create(collectionID, currentUser.ID)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	app.session.Put(r, "flash", fmt.Sprintf("You've been subscribed to %q", form.Get("collectionName")))
+
+	http.Redirect(w, r, "/search?s="+url.QueryEscape(form.Get("search")), http.StatusSeeOther)
 }

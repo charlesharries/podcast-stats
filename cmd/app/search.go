@@ -19,7 +19,7 @@ type ITunesResult struct {
 
 // Result corresponds to a single result from the iTunes search API.
 type Result struct {
-	CollectionID   string
+	CollectionID   int
 	CollectionName string
 	FeedURL        string
 }
