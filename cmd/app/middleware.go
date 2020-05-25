@@ -46,6 +46,7 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 func (app *application) requireAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !app.isAuthenticated(r) {
+			app.session.Put(r, "flash", "You must be logged in to do that.")
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
