@@ -3,5 +3,9 @@
 {{ define "title" }}Home{{ end }}
 
 {{ define "main" }}
-  <h1>Welcome home</h1>
+  <h1>Podcast stats</h1>
+
+  <p>Looks like you don't have any podcasts in your library yet.</p>
+
+  {{ template "search-form" . }}
 {{ end }}

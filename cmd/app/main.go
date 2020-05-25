@@ -9,13 +9,16 @@ import (
 	"os"
 	"time"
 
+	"github.com/charlesharries/podcast-stats/pkg/cache"
 	"github.com/charlesharries/podcast-stats/pkg/models"
 	"github.com/golangcollege/sessions"
+	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type application struct {
+	cache         *cache.Model
 	errorLog      *log.Logger
 	infoLog       *log.Logger
 	session       *sessions.Session
@@ -39,6 +42,13 @@ func main() {
 	}
 	defer db.Close()
 
+	// Open the connection to our Redis cache.
+	conn, err := openRedis()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+	defer conn.Close()
+
 	// Compile our templates.
 	templateCache, err := newTemplateCache("./web/template")
 	if err != nil {
@@ -52,6 +62,7 @@ func main() {
 
 	// Assemble our application struct
 	app := &application{
+		cache:         &cache.Model{Conn: conn},
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		session:       session,
@@ -88,6 +99,21 @@ func openDB() (*gorm.DB, error) {
 
 	// Migrate schema.
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Subscription{})
 
 	return db, nil
+}
+
+func openRedis() (redis.Conn, error) {
+	conn, err := redis.Dial("tcp", "178.62.57.103:6379")
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = conn.Do("AUTH", "ohktY9Dyt8f292b3G9zEQGsF")
+	if err != nil {
+		return nil, err
+	}
+
+	return conn, nil
 }

@@ -1,0 +1,13 @@
+{{ template "app" . }}
+
+{{ define "title" }}Results{{ end }}
+
+{{ define "main" }}
+  <h1>Results</h1>
+
+  <ul>
+    {{ range .Results.Results }}
+      <li>{{ .CollectionName }}</li>
+    {{ end }}
+  </ul>
+{{ end }}

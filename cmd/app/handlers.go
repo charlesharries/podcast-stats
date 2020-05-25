@@ -16,7 +16,9 @@ func ping(w http.ResponseWriter, r *http.Request) {
 
 // home handles GET requests for the application root.
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	app.render(w, r, "index.tmpl", nil)
+	app.render(w, r, "index.tmpl", &templateData{
+		Form: forms.New(nil),
+	})
 }
 
 // signupPage handles GET requests for the /signup route.
@@ -84,6 +86,7 @@ func (app *application) login(w http.ResponseWriter, r *http.Request) {
 
 	// Create a template user to pass into the template
 	tu := &TemplateUser{
+		ID:    user.ID,
 		Email: user.Email,
 	}
 
@@ -97,4 +100,31 @@ func (app *application) logout(w http.ResponseWriter, r *http.Request) {
 
 	app.session.Put(r, "flash", "You've been logged out.")
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+// search handles searching for a podcast.
+func (app *application) search(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(r.Form)
+	form.Required("s")
+	if !form.Valid() {
+		app.session.Put(r, "flash", "Please enter a search term.")
+		app.render(w, r, "results.tmpl", nil)
+		return
+	}
+
+	result, err := app.getResults(form.Get("s"))
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	app.render(w, r, "results.tmpl", &templateData{
+		Results: result,
+	})
 }

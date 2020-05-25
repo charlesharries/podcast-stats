@@ -12,6 +12,7 @@ import (
 // template. We don't want to pass passwords and stuff into
 // our templates.
 type TemplateUser struct {
+	ID    uint
 	Email string
 }
 
@@ -19,6 +20,7 @@ type templateData struct {
 	CurrentYear int
 	Flash       string
 	Form        *forms.Form
+	Results     ITunesResult
 	User        TemplateUser
 }
 

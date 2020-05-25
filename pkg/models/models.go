@@ -20,6 +20,15 @@ var ErrDuplicateEmail = errors.New("models: duplicate email")
 // User represents the schema for our user in the database.
 type User struct {
 	gorm.Model
-	Email    string `gorm:"type:varchar(100);unique_index;not null"`
-	Password []byte `gorm:"type:varchar(60);not null"`
+	Email         string `gorm:"type:varchar(100);unique_index;not null"`
+	Password      []byte `gorm:"type:varchar(60);not null"`
+	Subscriptions []Subscription
+}
+
+// Subscription represents a relationship between a user and a podcast.
+type Subscription struct {
+	gorm.Model
+	UserID       int    `gorm:"index:subscription_user_id"`
+	CollectionID string `gorm:"index:subscription_collection_id"`
+	Name         string
 }

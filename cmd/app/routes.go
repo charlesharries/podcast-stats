@@ -22,6 +22,9 @@ func (app *application) routes() http.Handler {
 	mux.Post("/login", dynamicMiddleware.ThenFunc(http.HandlerFunc(app.login)))
 	mux.Post("/logout", dynamicMiddleware.ThenFunc(http.HandlerFunc(app.logout)))
 
+	// Search routes
+	mux.Get("/search", dynamicMiddleware.ThenFunc(http.HandlerFunc(app.search)))
+
 	mux.Get("/ping", http.HandlerFunc(ping))
 
 	return standardMiddleware.Then(mux)

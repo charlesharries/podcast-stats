@@ -1,0 +1,20 @@
+{{ define "search-form" }}
+<div class="Search">
+  <h3>Let's get searching.</h3>
+
+  {{ with .Form }}
+    <form method="GET" action="/search">
+      {{ with .Errors.Get "generic" }}
+        <div class="error">{{ . }}</div>
+      {{ end }}
+      <div class="field">
+        <label for="s">Search</label>
+        <input type="text" name="s" value='{{ .Get "s" }}'>
+        {{ with .Errors.Get "email" }}
+          <p>{{ . }}</p>
+        {{ end }}
+      </div>
+    </form>
+  {{ end }}
+</div>
+{{ end }}
