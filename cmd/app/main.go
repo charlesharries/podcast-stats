@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/gob"
-	"flag"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -15,6 +15,7 @@ import (
 	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/joho/godotenv"
 )
 
 type application struct {
@@ -29,9 +30,11 @@ type application struct {
 }
 
 func main() {
-	port := flag.String("p", "3200", "HTTP network port")
-	secret := flag.String("secret", "S4fcFbWc5caesR3d6ddSbGxvyzy31IIf", "App secret key")
-	flag.Parse()
+	// Load environment variables
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Couldn't load .env file.")
+	}
 
 	// Create custom loggers.
 	infoLog := log.New(os.Stdout, "INFO:\t", log.Ldate|log.Ltime)
@@ -58,7 +61,7 @@ func main() {
 	}
 
 	// Create a new session.
-	session := sessions.New([]byte(*secret))
+	session := sessions.New([]byte(os.Getenv("APP_SECRET")))
 	session.Lifetime = 48 * time.Hour
 	gob.Register(TemplateUser{})
 
@@ -76,7 +79,7 @@ func main() {
 
 	// Create a custom server.
 	srv := &http.Server{
-		Addr:         "localhost:" + *port,
+		Addr:         "localhost:" + os.Getenv("PORT"),
 		ErrorLog:     errorLog,
 		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
@@ -85,13 +88,21 @@ func main() {
 	}
 
 	// Spin 'er up.
-	infoLog.Printf("Starting server at http://localhost:%s\n", *port)
+	infoLog.Printf("Starting server at http://localhost:%s\n", os.Getenv("PORT"))
 	err = srv.ListenAndServe()
 	errorLog.Fatal(err)
 }
 
 func openDB() (*gorm.DB, error) {
-	db, err := gorm.Open("mysql", "root:@/podcast_stats?charset=utf8mb4,utf8&parseTime=True")
+
+	dsn := fmt.Sprintf(
+		"%s:%s@tcp(%s)/%s?charset=utf8mb4,utf8&parseTime=true",
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASS"),
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_NAME"),
+	)
+	db, err := gorm.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +112,7 @@ func openDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	db.Set("gorm:table_options", "charset=utf8").AutoMigrate(
+	db.AutoMigrate(
 		&models.User{},
 		&models.Subscription{},
 		&models.Podcast{},
@@ -111,12 +122,12 @@ func openDB() (*gorm.DB, error) {
 }
 
 func openRedis() (redis.Conn, error) {
-	conn, err := redis.Dial("tcp", "178.62.57.103:6379")
+	conn, err := redis.Dial("tcp", os.Getenv("REDIS_HOST"))
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = conn.Do("AUTH", "ohktY9Dyt8f292b3G9zEQGsF")
+	_, err = conn.Do("AUTH", os.Getenv("REDIS_AUTH"))
 	if err != nil {
 		return nil, err
 	}
