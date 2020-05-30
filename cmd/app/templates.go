@@ -16,13 +16,22 @@ type TemplateUser struct {
 	Email string
 }
 
+// TemplateSubscription is a representation of a subscription
+// passed in to a template. We only need a subset of subscription
+// data in our templates.
+type TemplateSubscription struct {
+	CollectionID int
+	Name         string
+}
+
 type templateData struct {
-	CurrentYear int
-	Flash       string
-	Form        *forms.Form
-	Results     ITunesResult
-	Search      string
-	User        TemplateUser
+	CurrentYear   int
+	Flash         string
+	Form          *forms.Form
+	Results       ITunesResult
+	Search        string
+	Subscriptions []TemplateSubscription
+	User          TemplateUser
 }
 
 // humanDate formats time.Time objects into a human-readable format.
@@ -35,9 +44,21 @@ func humanDate(t time.Time) string {
 	return t.UTC().Format("02 Jan 2006 at 15:04")
 }
 
+// inSlice checks if a value can be found in a slice.
+func hasSubscription(ss []TemplateSubscription, id int) bool {
+	for _, s := range ss {
+		if s.CollectionID == id {
+			return true
+		}
+	}
+
+	return false
+}
+
 // functions passes some functions into our templates.
 var functions = template.FuncMap{
-	"humanDate": humanDate,
+	"humanDate":       humanDate,
+	"hasSubscription": hasSubscription,
 }
 
 // newTemplateCache pre-compiles all of our templates so we're not re-compiling

@@ -21,6 +21,7 @@ type application struct {
 	cache         *cache.Model
 	errorLog      *log.Logger
 	infoLog       *log.Logger
+	podcasts      *models.PodcastModel
 	session       *sessions.Session
 	subscriptions *models.SubscriptionModel
 	templateCache map[string]*template.Template
@@ -66,6 +67,7 @@ func main() {
 		cache:         &cache.Model{Conn: conn},
 		errorLog:      errorLog,
 		infoLog:       infoLog,
+		podcasts:      &models.PodcastModel{DB: db},
 		session:       session,
 		subscriptions: &models.SubscriptionModel{DB: db},
 		templateCache: templateCache,
@@ -89,7 +91,7 @@ func main() {
 }
 
 func openDB() (*gorm.DB, error) {
-	db, err := gorm.Open("mysql", "root:@/podcast_stats?charset=utf8&parseTime=true")
+	db, err := gorm.Open("mysql", "root:@/podcast_stats?charset=utf8mb4,utf8&parseTime=True")
 	if err != nil {
 		return nil, err
 	}
@@ -99,9 +101,11 @@ func openDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// Migrate schema.
-	db.AutoMigrate(&models.User{})
-	db.AutoMigrate(&models.Subscription{})
+	db.Set("gorm:table_options", "charset=utf8").AutoMigrate(
+		&models.User{},
+		&models.Subscription{},
+		&models.Podcast{},
+	)
 
 	return db, nil
 }

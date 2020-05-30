@@ -25,9 +25,16 @@ type User struct {
 	Subscriptions []Subscription
 }
 
+// Podcast is a single podcast from iTunes.
+type Podcast struct {
+	ID   int `gorm:"primary_key"`
+	Name string
+	Feed string
+}
+
 // Subscription represents a relationship between a user and a podcast.
 type Subscription struct {
-	gorm.Model
-	UserID       uint `gorm:"index:subscription_user_id"`
-	CollectionID int  `gorm:"index:subscription_collection_id"`
+	UserID    uint `gorm:"index:subscription_user_id"`
+	PodcastID int  `gorm:"index:subscription_podcast_id"`
+	Podcast   Podcast
 }

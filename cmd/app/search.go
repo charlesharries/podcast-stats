@@ -90,3 +90,15 @@ func (app *application) getResults(term string) (ITunesResult, error) {
 	// ... and return.
 	return result, nil
 }
+
+// saveResults saves all podcasts in the results to the database.
+func (app *application) saveResults(rs []Result) error {
+	for _, r := range rs {
+		err := app.podcasts.Create(r.CollectionID, r.CollectionName, r.FeedURL)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

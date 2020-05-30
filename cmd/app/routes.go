@@ -9,11 +9,11 @@ import (
 
 func (app *application) routes() http.Handler {
 	standardMiddleware := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
-	dynamicMiddleware := alice.New(app.session.Enable)
+	dynamicMiddleware := alice.New(app.session.Enable, app.authenticate)
 
 	mux := pat.New()
 
-	mux.Get("/", dynamicMiddleware.ThenFunc(http.HandlerFunc(app.home)))
+	mux.Get("/", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.home)))
 
 	// Users routes.
 	mux.Get("/signup", dynamicMiddleware.ThenFunc(http.HandlerFunc(app.signupPage)))
@@ -27,6 +27,7 @@ func (app *application) routes() http.Handler {
 
 	// Subscription routes.
 	mux.Post("/subscriptions", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.subscribe)))
+	mux.Post("/subscriptions/delete", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.unsubscribe)))
 
 	mux.Get("/ping", http.HandlerFunc(ping))
 

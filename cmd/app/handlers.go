@@ -20,8 +20,25 @@ func ping(w http.ResponseWriter, r *http.Request) {
 
 // home handles GET requests for the application root.
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
+	currentUser := app.session.Get(r, "authenticatedUser").(TemplateUser)
+
+	subscriptions, err := app.subscriptions.FindAll(currentUser.ID)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	var ss []TemplateSubscription
+	for _, s := range subscriptions {
+		ss = append(ss, TemplateSubscription{
+			CollectionID: s.Podcast.ID,
+			Name:         s.Podcast.Name,
+		})
+	}
+
 	app.render(w, r, "index.tmpl", &templateData{
-		Form: forms.New(nil),
+		Subscriptions: ss,
+		Form:          forms.New(nil),
 	})
 }
 
@@ -128,13 +145,41 @@ func (app *application) search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = app.saveResults(result.Results)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	currentUser := app.session.Get(r, "authenticatedUser").(TemplateUser)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	var ss []TemplateSubscription
+	subscriptions, err := app.subscriptions.FindAll(currentUser.ID)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	for _, s := range subscriptions {
+		ss = append(ss, TemplateSubscription{
+			CollectionID: s.Podcast.ID,
+			Name:         s.Podcast.Name,
+		})
+	}
+
 	app.render(w, r, "results.tmpl", &templateData{
-		Search:  form.Get("s"),
-		Results: result,
+		Search:        form.Get("s"),
+		Results:       result,
+		Subscriptions: ss,
 	})
 }
 
 // subscribe subscribes the currently logged in user to a podcast.
+// TODO(charles): Maybe refactor some of this--it all feels a bit long.
 func (app *application) subscribe(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -162,15 +207,14 @@ func (app *application) subscribe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO(charles): Check if the current user is already subscribed
-	// to this podcast. If so, redirect back with a flash message.
-	subscription, err := app.subscriptions.Get(collectionID, currentUser.ID)
+	// Check if a user is already subscribed to a podcast.
+	subscription, err := app.subscriptions.Find(collectionID, currentUser.ID)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		app.serverError(w, err)
 		return
 	}
 
-	if subscription.CollectionID == collectionID {
+	if subscription.PodcastID == collectionID {
 		app.session.Put(r, "flash", fmt.Sprintf("Already subscribed to %q", form.Get("collectionName")))
 		http.Redirect(w, r, "/search?s="+url.QueryEscape(form.Get("search")), http.StatusSeeOther)
 		return
@@ -183,6 +227,45 @@ func (app *application) subscribe(w http.ResponseWriter, r *http.Request) {
 	}
 
 	app.session.Put(r, "flash", fmt.Sprintf("You've been subscribed to %q", form.Get("collectionName")))
+
+	http.Redirect(w, r, "/search?s="+url.QueryEscape(form.Get("search")), http.StatusSeeOther)
+}
+
+// unsubscribe removes a user's podcast subscription.
+func (app *application) unsubscribe(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form := forms.New(r.PostForm)
+	form.Required("collectionID")
+	if !form.Valid() {
+		app.session.Put(r, "flash", "Couldn't unsubscribe you, sorry.")
+		http.Redirect(w, r, "/search?s="+url.QueryEscape(form.Get("search")), http.StatusSeeOther)
+		return
+	}
+
+	collectionID, err := strconv.Atoi(form.Get("collectionID"))
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	currentUser := app.session.Get(r, "authenticatedUser").(TemplateUser)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	err = app.subscriptions.Delete(collectionID, currentUser.ID)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	app.session.Put(r, "flash", fmt.Sprintf("You've been unsubscribed from %q", form.Get("collectionName")))
 
 	http.Redirect(w, r, "/search?s="+url.QueryEscape(form.Get("search")), http.StatusSeeOther)
 }

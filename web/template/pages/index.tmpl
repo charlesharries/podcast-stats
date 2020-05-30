@@ -5,7 +5,15 @@
 {{ define "main" }}
   <h1>Podcast stats</h1>
 
-  <p>Looks like you don't have any podcasts in your library yet.</p>
+  {{ if eq (len .Subscriptions) 0 }}
+    <p>Looks like you don't have any podcasts in your library yet.</p>
+  {{ else }}
+    <ul>
+      {{ range .Subscriptions }}
+        <li>{{ .Name }}</li>  
+      {{ end }}
+    </ul>
+  {{ end }}
 
   {{ template "search-form" . }}
 {{ end }}

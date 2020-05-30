@@ -9,12 +9,27 @@
     {{ range .Results.Results }}
       <li>
         <span>{{ .CollectionName }}</span>
-        <form method="POST" action="/subscriptions">
+        {{ if hasSubscription $.Subscriptions .CollectionID }}
+          <span>&check; Subscribed</span>
+        {{ end }}
+
+        {{ if hasSubscription $.Subscriptions .CollectionID }}
+          <form method="POST" action="/subscriptions/delete">
+        {{ else }}
+          <form method="POST" action="/subscriptions">
+        {{ end }}
+        
           <input type="hidden" name="collectionID" value='{{ .CollectionID }}' />
           <input type="hidden" name="collectionName" value='{{ .CollectionName }}' />
           <input type="hidden" name="search" value='{{ $.Search }}' />
 
-          <button type="submit">Add to library</button>
+          <button type="submit">
+            {{ if hasSubscription $.Subscriptions .CollectionID }}
+              Unsubscribe
+            {{ else }}
+              Subscribe
+            {{ end }}
+          </button>
         </form>
       </li>
     {{ end }}

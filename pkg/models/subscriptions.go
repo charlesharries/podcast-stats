@@ -8,11 +8,11 @@ type SubscriptionModel struct {
 }
 
 // Create inserts a new subscription into the database.
-func (m *SubscriptionModel) Create(collectionID int, userID uint) error {
+func (m *SubscriptionModel) Create(PodcastID int, userID uint) error {
 	// Mock up the subscription...
 	subscription := &Subscription{
-		CollectionID: collectionID,
-		UserID:       userID,
+		PodcastID: PodcastID,
+		UserID:    userID,
 	}
 
 	// ... and save it to the database.
@@ -24,14 +24,36 @@ func (m *SubscriptionModel) Create(collectionID int, userID uint) error {
 	return nil
 }
 
-// Get finds a subscription by collectionID and userID.
-func (m *SubscriptionModel) Get(collectionID int, userID uint) (Subscription, error) {
-	var subscription, blank Subscription
+// Find finds a subscription by collectionID and userID.
+func (m *SubscriptionModel) Find(collectionID int, userID uint) (Subscription, error) {
+	var subscription Subscription
+	err := m.DB.First(&subscription, "podcast_id = ? AND user_id = ?", collectionID, userID).Error
 
-	err := m.DB.First(&subscription, "collection_id= ? AND user_id = ?", collectionID, userID).Error
+	return subscription, err
+}
+
+// FindAll returns all subscriptions for a given userID.
+func (m *SubscriptionModel) FindAll(userID uint) ([]Subscription, error) {
+	var subscriptions, blank []Subscription
+
+	err := m.DB.Preload("Podcast").Find(&subscriptions, "user_id = ?", userID).Error
 	if err != nil {
 		return blank, err
 	}
 
-	return subscription, nil
+	return subscriptions, nil
+}
+
+// Delete removes the provided subscription from the provided user.
+func (m *SubscriptionModel) Delete(collectionID int, userID uint) error {
+	return m.DB.Unscoped().Delete(Subscription{}, "podcast_id = ? AND user_id = ?", collectionID, userID).Error
+}
+
+// Podcast returns the podcast for the given subscription ID.
+func (m *SubscriptionModel) Podcast(collectionID int) (Podcast, error) {
+	var podcast Podcast
+	err := m.DB.First(&podcast, "id = ?", collectionID).Error
+
+	return podcast, err
+
 }
