@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -98,6 +99,13 @@ func (app *application) saveResults(rs []Result) error {
 		if err != nil {
 			return err
 		}
+
+		episodes, err := app.getEpisodes(r.FeedURL)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("%#v\n", episodes)
 	}
 
 	return nil
