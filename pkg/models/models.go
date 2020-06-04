@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"time"
 
 	"github.com/jinzhu/gorm"
 )
@@ -37,4 +38,12 @@ type Subscription struct {
 	UserID    uint `gorm:"index:subscription_user_id"`
 	PodcastID int  `gorm:"index:subscription_podcast_id"`
 	Podcast   Podcast
+}
+
+// Episode is a single podcast episode.
+type Episode struct {
+	ID          uint `gorm:"primary_key"`
+	Title       string
+	PublishedOn time.Time
+	Duration    int
 }
