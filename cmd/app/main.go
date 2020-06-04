@@ -127,9 +127,11 @@ func openRedis() (redis.Conn, error) {
 		return nil, err
 	}
 
-	_, err = conn.Do("AUTH", os.Getenv("REDIS_AUTH"))
-	if err != nil {
-		return nil, err
+	if len(os.Getenv("REDIS_AUTH")) > 0 {
+		_, err = conn.Do("AUTH", os.Getenv("REDIS_AUTH"))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return conn, nil
