@@ -28,9 +28,10 @@ type User struct {
 
 // Podcast is a single podcast from iTunes.
 type Podcast struct {
-	ID   int `gorm:"primary_key"`
-	Name string
-	Feed string
+	ID       int `gorm:"primary_key"`
+	Name     string
+	Feed     string
+	Episodes []Episode
 }
 
 // Subscription represents a relationship between a user and a podcast.
@@ -42,8 +43,10 @@ type Subscription struct {
 
 // Episode is a single podcast episode.
 type Episode struct {
-	ID          uint `gorm:"primary_key"`
+	ID          uint   `gorm:"primary_key"`
+	PodcastID   int    `gorm:"index:episode_podcast_id"`
+	GUID        string `gorm:"type:varchar(100);unique_index"`
 	Title       string
 	PublishedOn time.Time
-	Duration    int
+	Duration    float64
 }

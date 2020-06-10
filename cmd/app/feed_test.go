@@ -7,9 +7,9 @@ import (
 // TestGetEpisodes tests that we can actually fetch episodes.
 func TestGetEpisodes(t *testing.T) {
 	app := newTestApplication(t)
-	feedURL := "https://feeds.megaphone.fm/replyall"
+	collectionID := uint(941907967)
 
-	episodes, err := app.getEpisodes(feedURL)
+	episodes, err := app.getEpisodes(collectionID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,9 +22,9 @@ func TestGetEpisodes(t *testing.T) {
 // TestEpisodeSource tests that an episode has a source URL.
 func TestEpisodeSource(t *testing.T) {
 	app := newTestApplication(t)
-	feedURL := "https://feeds.megaphone.fm/replyall"
+	collectionID := uint(941907967)
 
-	episodes, err := app.getEpisodes(feedURL)
+	episodes, err := app.getEpisodes(collectionID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,14 +37,14 @@ func TestEpisodeSource(t *testing.T) {
 // TestEpisodeLength tests that we can get the length of an individual episode.
 func TestEpisodeLength(t *testing.T) {
 	app := newTestApplication(t)
-	feedURL := "https://feeds.megaphone.fm/replyall"
+	collectionID := uint(941907967)
 
-	episodes, err := app.getEpisodes(feedURL)
+	episodes, err := app.getEpisodes(collectionID)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	duration, err := getEpisodeLength(episodes[0].Source.URL)
+	duration, err := episodes[0].duration()
 	if err != nil {
 		t.Fatal(err)
 	}

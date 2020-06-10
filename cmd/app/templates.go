@@ -22,6 +22,16 @@ type TemplateUser struct {
 type TemplateSubscription struct {
 	CollectionID int
 	Name         string
+	Episodes     []TemplateEpisode
+}
+
+// TemplateEpisode is a representation of a single podcast
+// episode passed into a template. We only need a subset of episode
+// data in our templates.
+type TemplateEpisode struct {
+	Title       string
+	Duration    float64
+	PublishedOn time.Time
 }
 
 type templateData struct {

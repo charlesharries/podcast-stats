@@ -8,10 +8,10 @@ type SubscriptionModel struct {
 }
 
 // Create inserts a new subscription into the database.
-func (m *SubscriptionModel) Create(PodcastID int, userID uint) error {
+func (m *SubscriptionModel) Create(podcastID int, userID uint) error {
 	// Mock up the subscription...
 	subscription := &Subscription{
-		PodcastID: PodcastID,
+		PodcastID: podcastID,
 		UserID:    userID,
 	}
 
@@ -36,7 +36,7 @@ func (m *SubscriptionModel) Find(collectionID int, userID uint) (Subscription, e
 func (m *SubscriptionModel) FindAll(userID uint) ([]Subscription, error) {
 	var subscriptions, blank []Subscription
 
-	err := m.DB.Preload("Podcast").Find(&subscriptions, "user_id = ?", userID).Error
+	err := m.DB.Preload("Podcast").Preload("Podcast.Episodes").Find(&subscriptions, "user_id = ?", userID).Error
 	if err != nil {
 		return blank, err
 	}

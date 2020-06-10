@@ -30,9 +30,19 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	var ss []TemplateSubscription
 	for _, s := range subscriptions {
+		var eps []TemplateEpisode
+		for _, ep := range s.Podcast.Episodes {
+			eps = append(eps, TemplateEpisode{
+				Title:       ep.Title,
+				PublishedOn: ep.PublishedOn,
+				Duration:    ep.Duration,
+			})
+		}
+
 		ss = append(ss, TemplateSubscription{
 			CollectionID: s.Podcast.ID,
 			Name:         s.Podcast.Name,
+			Episodes:     eps,
 		})
 	}
 
@@ -224,6 +234,18 @@ func (app *application) subscribe(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		app.serverError(w, err)
 		return
+	}
+
+	// Save the episodes of the newly subscribed podcast.
+	episodes, err := app.getEpisodes(uint(collectionID))
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	err = app.saveEpisodes(collectionID, episodes)
+	if err != nil {
+		app.serverError(w, err)
 	}
 
 	app.session.Put(r, "flash", fmt.Sprintf("You've been subscribed to %q", form.Get("collectionName")))

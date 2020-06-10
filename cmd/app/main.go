@@ -22,6 +22,7 @@ type application struct {
 	cache         *cache.Model
 	errorLog      *log.Logger
 	infoLog       *log.Logger
+	episodes      *models.EpisodeModel
 	podcasts      *models.PodcastModel
 	session       *sessions.Session
 	subscriptions *models.SubscriptionModel
@@ -70,6 +71,7 @@ func main() {
 		cache:         &cache.Model{Conn: conn},
 		errorLog:      errorLog,
 		infoLog:       infoLog,
+		episodes:      &models.EpisodeModel{DB: db},
 		podcasts:      &models.PodcastModel{DB: db},
 		session:       session,
 		subscriptions: &models.SubscriptionModel{DB: db},
@@ -113,9 +115,10 @@ func openDB() (*gorm.DB, error) {
 	}
 
 	db.AutoMigrate(
-		&models.User{},
-		&models.Subscription{},
+		&models.Episode{},
 		&models.Podcast{},
+		&models.Subscription{},
+		&models.User{},
 	)
 
 	return db, nil
@@ -127,9 +130,11 @@ func openRedis() (redis.Conn, error) {
 		return nil, err
 	}
 
-	_, err = conn.Do("AUTH", os.Getenv("REDIS_AUTH"))
-	if err != nil {
-		return nil, err
+	if len(os.Getenv("REDIS_AUTH")) > 0 {
+		_, err = conn.Do("AUTH", os.Getenv("REDIS_AUTH"))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return conn, nil
