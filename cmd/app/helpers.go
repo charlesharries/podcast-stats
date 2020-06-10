@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"runtime/debug"
 	"time"
+
+	"github.com/charlesharries/podcast-stats/pkg/forms"
 )
 
 // serverError writes a basic 500 error as a response.
@@ -33,6 +35,7 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 	if app.session.Exists(r, "authenticatedUser") {
 		td.User = app.session.Get(r, "authenticatedUser").(TemplateUser)
 	}
+	td.SearchForm = forms.New(nil)
 
 	return td
 }

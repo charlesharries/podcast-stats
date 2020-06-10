@@ -2,7 +2,7 @@
 <div class="Search">
   <h3>Let's get searching.</h3>
 
-  {{ with .Form }}
+  {{ with .SearchForm }}
     <form method="GET" action="/search">
       {{ with .Errors.Get "generic" }}
         <div class="error">{{ . }}</div>

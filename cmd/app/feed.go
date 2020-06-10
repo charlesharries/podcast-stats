@@ -55,6 +55,11 @@ func (ep *FeedEpisode) publishedOnTime() (time.Time, error) {
 
 // duration gets en episode's time in seconds.
 func (ep *FeedEpisode) duration() (int, error) {
+	// If no duration, just return 0
+	if len(ep.Duration) == 0 {
+		return 0, nil
+	}
+
 	// If duration doesn't have a :, it's likely already
 	// in seconds.
 	if !strings.Contains(ep.Duration, ":") {

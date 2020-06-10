@@ -48,7 +48,6 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 
 	app.render(w, r, "index.tmpl", &templateData{
 		Subscriptions: ss,
-		Form:          forms.New(nil),
 	})
 }
 

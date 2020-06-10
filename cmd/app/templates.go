@@ -40,6 +40,7 @@ type templateData struct {
 	Form          *forms.Form
 	Results       ITunesResult
 	Search        string
+	SearchForm    *forms.Form
 	Subscriptions []TemplateSubscription
 	User          TemplateUser
 }

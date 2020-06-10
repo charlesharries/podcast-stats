@@ -22,6 +22,7 @@ type Result struct {
 	CollectionID   int
 	CollectionName string
 	FeedURL        string
+	ArtworkURL30   string
 }
 
 // getResults checks if a result exists in the redis cache. If it does, return
@@ -98,8 +99,6 @@ func (app *application) saveResults(rs []Result) error {
 		if err != nil {
 			return err
 		}
-
-		return nil
 	}
 
 	return nil
