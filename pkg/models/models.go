@@ -47,6 +47,7 @@ type Episode struct {
 	PodcastID   int    `gorm:"index:episode_podcast_id"`
 	GUID        string `gorm:"type:varchar(100);unique_index"`
 	Title       string
+	Source      string
 	PublishedOn time.Time
-	Duration    float64
+	Duration    int
 }

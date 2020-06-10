@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/xml"
-	"io"
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
-
-	"github.com/tcolgate/mp3"
 )
 
 // FeedResults is the full XML response.
@@ -29,6 +29,7 @@ type FeedEpisode struct {
 	GUID        string     `xml:"guid"`
 	PublishedOn string     `xml:"pubDate"`
 	Source      FeedSource `xml:"enclosure"`
+	Duration    string     `xml:"duration"`
 }
 
 // FeedSource is a episode URL.
@@ -53,31 +54,48 @@ func (ep *FeedEpisode) publishedOnTime() (time.Time, error) {
 }
 
 // duration gets en episode's time in seconds.
-func (ep *FeedEpisode) duration() (float64, error) {
-	t := 0.0
-
-	resp, err := http.Get(ep.Source.URL)
-	if err != nil {
-		return 0.0, err
-	}
-	defer resp.Body.Close()
-
-	d := mp3.NewDecoder(resp.Body)
-	var f mp3.Frame
-	skipped := 0
-
-	for {
-		err := d.Decode(&f, &skipped)
+func (ep *FeedEpisode) duration() (int, error) {
+	// If duration doesn't have a :, it's likely already
+	// in seconds.
+	if !strings.Contains(ep.Duration, ":") {
+		d, err := strconv.Atoi(ep.Duration)
 		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return 0.0, err
+			fmt.Println(ep.Title, ep.Duration)
+			return 0, err
 		}
-		t = t + f.Duration().Seconds()
+
+		return d, nil
 	}
 
-	return t, nil
+	// Slice apart the duration on :, then add up the
+	// seconds, minutes, and hours.
+	parts := strings.Split(ep.Duration, ":")
+	var s, m, h int
+	var sec, min, hour string
+
+	sec, parts = parts[len(parts)-1], parts[:len(parts)-1]
+	s, err := strconv.Atoi(sec)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(parts) > 0 {
+		min, parts = parts[len(parts)-1], parts[:len(parts)-1]
+		m, err = strconv.Atoi(min)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	if len(parts) > 0 {
+		hour, parts = parts[len(parts)-1], parts[:len(parts)-1]
+		h, err = strconv.Atoi(hour)
+		if err != nil {
+			return 0, err
+		}
+	}
+
+	return h*60*60 + m*60 + s, nil
 }
 
 // getEpisodes fetches the first 20 episodes from an XML feed.
@@ -119,15 +137,12 @@ func (app *application) saveEpisodes(podcastID int, eps []FeedEpisode) error {
 			return err
 		}
 
-		// TODO(charles): Figure out how to calculate duration for each
-		//   episode in a goroutine so that this request can return in
-		//   a timely fashion.
-		// dur, err := ep.duration()
-		// if err != nil {
-		// 	return err
-		// }
+		dur, err := ep.duration()
+		if err != nil {
+			return err
+		}
 
-		err = app.episodes.Create(ep.Title, ep.GUID, podcastID, pub, 0)
+		err = app.episodes.Create(ep.Title, ep.GUID, ep.Source.URL, dur, podcastID, pub)
 		if err != nil {
 			return err
 		}

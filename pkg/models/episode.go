@@ -12,13 +12,14 @@ type EpisodeModel struct {
 }
 
 // Create adds a row in the episodes table.
-func (m *EpisodeModel) Create(title, guid string, podcastID int, publishedOn time.Time, duration float64) error {
+func (m *EpisodeModel) Create(title, guid, source string, duration, podcastID int, publishedOn time.Time) error {
 	episode := &Episode{
 		Title:       title,
 		GUID:        guid,
+		Source:      source,
+		Duration:    duration,
 		PodcastID:   podcastID,
 		PublishedOn: publishedOn,
-		Duration:    duration,
 	}
 
 	err := m.DB.Where(Episode{GUID: guid}).Assign(&episode).FirstOrCreate(&episode).Error

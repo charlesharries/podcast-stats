@@ -30,7 +30,7 @@ type TemplateSubscription struct {
 // data in our templates.
 type TemplateEpisode struct {
 	Title       string
-	Duration    float64
+	Duration    int
 	PublishedOn time.Time
 }
 

@@ -50,6 +50,6 @@ func TestEpisodeLength(t *testing.T) {
 	}
 
 	if duration == 0.0 {
-		t.Errorf("want duration to be > 1, got %.2f (rounded)", duration)
+		t.Errorf("want duration to be > 1, got %d (rounded)", duration)
 	}
 }
