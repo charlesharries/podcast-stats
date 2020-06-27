@@ -26,9 +26,9 @@ func (m *PodcastModel) Create(ID int, collectionName, feed string) error {
 }
 
 // Find gets a single podcast by collectionID.
-func (m *PodcastModel) Find(collectionID uint) (Podcast, error) {
+func (m *PodcastModel) Find(collectionID int) (Podcast, error) {
 	var podcast Podcast
-	err := m.DB.First(&podcast, "id = ?", collectionID).Error
+	err := m.DB.Preload("Episodes").First(&podcast, "id = ?", collectionID).Error
 
 	return podcast, err
 }

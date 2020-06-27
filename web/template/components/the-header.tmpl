@@ -11,9 +11,6 @@
             <button type="submit">Logout</a>
           </form>
         </li>
-        <li>
-          {{ template "search-form" . }}
-        </li>
       {{ else }}
         <li>
           <a href="/signup">Signup</a>
@@ -25,5 +22,7 @@
       {{ end }}
     </ul>
   </nav>
+
+  {{ template "search-form" . }}
 </header>
 {{ end }}

@@ -11,13 +11,11 @@
     <ul>
       {{ range .Subscriptions }}
         <li>
-          <h3>{{ .Name }}</h3>
-          <p>This week's episodes:</p>
-          <ul>
-            {{ range .Episodes }}
-              <li>{{ .Title }}</li>
-            {{ end }}
-          </ul>
+          <h3>
+            <a href="/podcasts/{{ .CollectionID }}">
+              {{ .Name }}
+            </a>
+          </h3>
         </li>  
       {{ end }}
     </ul>

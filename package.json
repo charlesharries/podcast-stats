@@ -1,0 +1,23 @@
+{
+  "name": "podcast-stats",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/charlesharries/podcast-stats.git",
+  "author": "Charles Harries <charles@harries.me>",
+  "license": "MIT",
+  "scripts": {
+    "dev": "webpack --watch"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.3",
+    "@babel/plugin-proposal-class-properties": "^7.10.1",
+    "@babel/preset-env": "^7.10.3",
+    "babel-loader": "^8.1.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "stimulus": "^1.1.1"
+  }
+}

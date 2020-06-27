@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"runtime/debug"
@@ -17,6 +18,26 @@ func (app *application) serverError(w http.ResponseWriter, err error) {
 	app.errorLog.Output(2, trace)
 
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+}
+
+// apiServerError writes a 500 error to a JSON response.
+func (app *application) apiServerError(w http.ResponseWriter, err error) {
+	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+
+	app.errorLog.Output(2, trace)
+
+	body := map[string]interface{}{
+		"error":   true,
+		"message": "Server error.",
+	}
+	js, err := json.Marshal(body)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	http.Error(w, string(js), http.StatusInternalServerError)
 }
 
 // clientError writes an error with whatever status code we pass in.

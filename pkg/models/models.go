@@ -51,3 +51,11 @@ type Episode struct {
 	PublishedOn time.Time
 	Duration    int
 }
+
+// Listen is a single episode listen for a user.
+type Listen struct {
+	ID         uint `gorm:"primary_key"`
+	UserID     uint `gorm:"index:listen_user_id"`
+	EpisodeID  uint `gorm:"index:listen_episode_id"`
+	ListenedAt time.Time
+}

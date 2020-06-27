@@ -104,7 +104,7 @@ func (ep *FeedEpisode) duration() (int, error) {
 }
 
 // getEpisodes fetches the first 20 episodes from an XML feed.
-func (app *application) getEpisodes(collectionID uint) ([]FeedEpisode, error) {
+func (app *application) getEpisodes(collectionID int) ([]FeedEpisode, error) {
 	var feed FeedResults
 	var blank []FeedEpisode
 

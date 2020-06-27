@@ -7,7 +7,7 @@ import (
 // TestGetEpisodes tests that we can actually fetch episodes.
 func TestGetEpisodes(t *testing.T) {
 	app := newTestApplication(t)
-	collectionID := uint(941907967)
+	collectionID := 941907967
 
 	episodes, err := app.getEpisodes(collectionID)
 	if err != nil {
@@ -22,7 +22,7 @@ func TestGetEpisodes(t *testing.T) {
 // TestEpisodeSource tests that an episode has a source URL.
 func TestEpisodeSource(t *testing.T) {
 	app := newTestApplication(t)
-	collectionID := uint(941907967)
+	collectionID := 941907967
 
 	episodes, err := app.getEpisodes(collectionID)
 	if err != nil {
@@ -37,7 +37,7 @@ func TestEpisodeSource(t *testing.T) {
 // TestEpisodeLength tests that we can get the length of an individual episode.
 func TestEpisodeLength(t *testing.T) {
 	app := newTestApplication(t)
-	collectionID := uint(941907967)
+	collectionID := 941907967
 
 	episodes, err := app.getEpisodes(collectionID)
 	if err != nil {
