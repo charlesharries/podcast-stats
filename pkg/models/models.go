@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"time"
 
 	"github.com/jinzhu/gorm"
 )
@@ -27,9 +28,10 @@ type User struct {
 
 // Podcast is a single podcast from iTunes.
 type Podcast struct {
-	ID   int `gorm:"primary_key"`
-	Name string
-	Feed string
+	ID       int `gorm:"primary_key"`
+	Name     string
+	Feed     string
+	Episodes []Episode
 }
 
 // Subscription represents a relationship between a user and a podcast.
@@ -37,4 +39,23 @@ type Subscription struct {
 	UserID    uint `gorm:"index:subscription_user_id"`
 	PodcastID int  `gorm:"index:subscription_podcast_id"`
 	Podcast   Podcast
+}
+
+// Episode is a single podcast episode.
+type Episode struct {
+	ID          uint   `gorm:"primary_key"`
+	PodcastID   int    `gorm:"index:episode_podcast_id"`
+	GUID        string `gorm:"type:varchar(100);unique_index"`
+	Title       string
+	Source      string
+	PublishedOn time.Time
+	Duration    int
+}
+
+// Listen is a single episode listen for a user.
+type Listen struct {
+	ID         uint `gorm:"primary_key"`
+	UserID     uint `gorm:"index:listen_user_id"`
+	EpisodeID  uint `gorm:"index:listen_episode_id"`
+	ListenedAt time.Time
 }

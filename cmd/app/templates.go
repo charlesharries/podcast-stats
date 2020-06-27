@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"path/filepath"
+	"sort"
 	"time"
 
 	"github.com/charlesharries/podcast-stats/pkg/forms"
+	"github.com/charlesharries/podcast-stats/pkg/models"
 )
 
 // TemplateUser is a representation of a user as passed to a
@@ -22,14 +25,29 @@ type TemplateUser struct {
 type TemplateSubscription struct {
 	CollectionID int
 	Name         string
+	Episodes     []TemplateEpisode
+}
+
+// TemplateEpisode is a representation of a single podcast
+// episode passed into a template. We only need a subset of episode
+// data in our templates.
+type TemplateEpisode struct {
+	ID          uint
+	Title       string
+	Duration    int
+	PublishedOn time.Time
+	Listened    bool
 }
 
 type templateData struct {
 	CurrentYear   int
 	Flash         string
+	Episodes      []TemplateEpisode
 	Form          *forms.Form
+	Podcast       models.Podcast
 	Results       ITunesResult
 	Search        string
+	SearchForm    *forms.Form
 	Subscriptions []TemplateSubscription
 	User          TemplateUser
 }
@@ -55,10 +73,81 @@ func hasSubscription(ss []TemplateSubscription, id int) bool {
 	return false
 }
 
+// countUnlistened gets the number of unlistened-to episodes.
+func countUnlistened(eps []TemplateEpisode) int {
+	count := 0
+	for _, ep := range eps {
+		if !ep.Listened {
+			count++
+		}
+	}
+
+	return count
+}
+
+func humanSeconds(secs int) string {
+	h := secs / (60 * 60)
+	m := (secs - (h * 60 * 60)) / 60
+
+	hs := ""
+	ms := ""
+
+	if h > 0 {
+		hs = fmt.Sprintf("%dh ", h)
+	}
+
+	if m > 0 {
+		ms = fmt.Sprintf("%dm", m)
+	}
+
+	return hs + ms
+}
+
+// unlistenedTime get the amount of unlistened-to podcast time.
+func unlistenedTime(eps []TemplateEpisode) string {
+	seconds := 0
+
+	for _, ep := range eps {
+		if !ep.Listened {
+			seconds += ep.Duration
+		}
+	}
+
+	return humanSeconds(seconds)
+}
+
+// byPublishedOn is a custom sort type.
+type byPublishedOn []TemplateEpisode
+
+// Len returns the length of the sortable.
+func (b byPublishedOn) Len() int {
+	return len(b)
+}
+
+// Swap indicates how to swap two sortable elements.
+func (b byPublishedOn) Swap(i, j int) {
+	b[i], b[j] = b[j], b[i]
+}
+
+// Less handles the actual sorting logic.
+func (b byPublishedOn) Less(i, j int) bool {
+	return b[i].PublishedOn.After(b[j].PublishedOn)
+}
+
+// soryByPublishedOn sorts TemplateEpisodes by PublishedOn times.
+func sortByPublishedOn(eps []TemplateEpisode) []TemplateEpisode {
+	sort.Sort(byPublishedOn(eps))
+	return eps
+}
+
 // functions passes some functions into our templates.
 var functions = template.FuncMap{
-	"humanDate":       humanDate,
-	"hasSubscription": hasSubscription,
+	"humanDate":         humanDate,
+	"hasSubscription":   hasSubscription,
+	"countUnlistened":   countUnlistened,
+	"sortByPublishedOn": sortByPublishedOn,
+	"unlistenedTime":    unlistenedTime,
+	"humanSeconds":      humanSeconds,
 }
 
 // newTemplateCache pre-compiles all of our templates so we're not re-compiling

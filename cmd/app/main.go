@@ -22,6 +22,8 @@ type application struct {
 	cache         *cache.Model
 	errorLog      *log.Logger
 	infoLog       *log.Logger
+	episodes      *models.EpisodeModel
+	listens       *models.ListenModel
 	podcasts      *models.PodcastModel
 	session       *sessions.Session
 	subscriptions *models.SubscriptionModel
@@ -70,6 +72,8 @@ func main() {
 		cache:         &cache.Model{Conn: conn},
 		errorLog:      errorLog,
 		infoLog:       infoLog,
+		episodes:      &models.EpisodeModel{DB: db},
+		listens:       &models.ListenModel{DB: db},
 		podcasts:      &models.PodcastModel{DB: db},
 		session:       session,
 		subscriptions: &models.SubscriptionModel{DB: db},
@@ -113,9 +117,11 @@ func openDB() (*gorm.DB, error) {
 	}
 
 	db.AutoMigrate(
-		&models.User{},
-		&models.Subscription{},
+		&models.Episode{},
+		&models.Listen{},
 		&models.Podcast{},
+		&models.Subscription{},
+		&models.User{},
 	)
 
 	return db, nil

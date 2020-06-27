@@ -10,10 +10,14 @@
   {{ else }}
     <ul>
       {{ range .Subscriptions }}
-        <li>{{ .Name }}</li>  
+        <li>
+          <h3>
+            <a href="/podcasts/{{ .CollectionID }}">
+              {{ .Name }}
+            </a>
+          </h3>
+        </li>  
       {{ end }}
     </ul>
   {{ end }}
-
-  {{ template "search-form" . }}
 {{ end }}

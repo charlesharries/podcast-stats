@@ -8,6 +8,7 @@
   <ul>
     {{ range .Results.Results }}
       <li>
+        <span><img src="{{ .ArtworkURL30 }}" alt=""></span>
         <span>{{ .CollectionName }}</span>
         {{ if hasSubscription $.Subscriptions .CollectionID }}
           <span>&check; Subscribed</span>
