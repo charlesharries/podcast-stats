@@ -7,24 +7,40 @@
 
   <ul>
     {{ range .Results.Results }}
-      <li>
+      <li
+        data-controller="subscription"
+        data-subscription-podcast-id="{{ .CollectionID }}"
+        data-subscription-subscribed="{{ hasSubscription $.Subscriptions .CollectionID }}"
+      >
         <span><img src="{{ .ArtworkURL30 }}" alt=""></span>
         <span>{{ .CollectionName }}</span>
         {{ if hasSubscription $.Subscriptions .CollectionID }}
-          <span>&check; Subscribed</span>
+          <span data-target="subscription.check">
+            &check;
+          </span>
         {{ end }}
 
         {{ if hasSubscription $.Subscriptions .CollectionID }}
-          <form method="POST" action="/subscriptions/delete">
+          <form
+            method="POST"
+            action="/subscriptions/delete"
+            data-target="subscription.form"
+            data-action="subscription#unsubscribe"
+          >
         {{ else }}
-          <form method="POST" action="/subscriptions">
+          <form 
+            method="POST"
+            action="/subscriptions"
+            data-target="subscription.form"
+            data-action="subscription#subscribe"
+          >
         {{ end }}
         
           <input type="hidden" name="collectionID" value='{{ .CollectionID }}' />
           <input type="hidden" name="collectionName" value='{{ .CollectionName }}' />
           <input type="hidden" name="search" value='{{ $.Search }}' />
 
-          <button type="submit">
+          <button type="submit" data-target="subscription.button">
             {{ if hasSubscription $.Subscriptions .CollectionID }}
               Unsubscribe
             {{ else }}

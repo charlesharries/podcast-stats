@@ -39,6 +39,12 @@ type TemplateEpisode struct {
 	Listened    bool
 }
 
+// TemplateStats are general global stats about all of your podcasts.
+type TemplateStats struct {
+	UnlistenedTime int
+	UnlistenedEps  int
+}
+
 type templateData struct {
 	CurrentYear   int
 	Flash         string
@@ -48,6 +54,7 @@ type templateData struct {
 	Results       ITunesResult
 	Search        string
 	SearchForm    *forms.Form
+	Stats         TemplateStats
 	Subscriptions []TemplateSubscription
 	User          TemplateUser
 }
@@ -104,7 +111,7 @@ func humanSeconds(secs int) string {
 }
 
 // unlistenedTime get the amount of unlistened-to podcast time.
-func unlistenedTime(eps []TemplateEpisode) string {
+func unlistenedTime(eps []TemplateEpisode) int {
 	seconds := 0
 
 	for _, ep := range eps {
@@ -113,7 +120,7 @@ func unlistenedTime(eps []TemplateEpisode) string {
 		}
 	}
 
-	return humanSeconds(seconds)
+	return seconds
 }
 
 // byPublishedOn is a custom sort type.

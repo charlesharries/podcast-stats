@@ -45,6 +45,11 @@ func (ep *FeedEpisode) publishedOnTime() (time.Time, error) {
 		return t, nil
 	}
 
+	t, err = time.Parse("Mon, 02 Jan 2006 15:04:05 MST", ep.PublishedOn)
+	if err == nil {
+		return t, nil
+	}
+
 	t, err = time.Parse("Mon, 2 Jan 2006 15:04:05 -0700", ep.PublishedOn)
 	if err == nil {
 		return t, nil
@@ -132,9 +137,15 @@ func (app *application) getEpisodes(collectionID int) ([]FeedEpisode, error) {
 		return blank, err
 	}
 
-	return feed.Channel.Items[:20], nil
+	toGet := 20
+	if len(feed.Channel.Items) < 20 {
+		toGet = len(feed.Channel.Items)
+	}
+
+	return feed.Channel.Items[:toGet], nil
 }
 
+// saveEpisodes receives a list of episodes and saves them to the database.
 func (app *application) saveEpisodes(podcastID int, eps []FeedEpisode) error {
 	for _, ep := range eps {
 		pub, err := ep.publishedOnTime()

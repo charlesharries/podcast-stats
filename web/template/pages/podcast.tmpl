@@ -13,7 +13,7 @@
 
   <h4>Stats</h4>
   <p>Number of unlistened episodes: <span data-target="podcast.unlistenedEpisodes">{{ countUnlistened .Episodes }}</span></p>
-  <p>Amount of unlistened time: <span data-target="podcast.unlistenedTime">{{ unlistenedTime .Episodes }}</span></p>
+  <p>Amount of unlistened time: <span data-target="podcast.unlistenedTime">{{ unlistenedTime .Episodes | humanSeconds }}</span></p>
 
   <h4>Episodes</h4>
   <ul>

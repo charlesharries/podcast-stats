@@ -7,7 +7,13 @@
 
   {{ if eq (len .Subscriptions) 0 }}
     <p>Looks like you don't have any podcasts in your library yet.</p>
+
   {{ else }}
+    <p>
+      <span>{{ .Stats.UnlistenedEps }} unlistened episodes</span>
+      <span>{{ humanSeconds .Stats.UnlistenedTime }} unlistened time</span>
+    </p>
+
     <ul>
       {{ range .Subscriptions }}
         <li>
@@ -16,6 +22,8 @@
               {{ .Name }}
             </a>
           </h3>
+          <p>{{ countUnlistened .Episodes }} episodes unlistened</p>
+          <p>{{ unlistenedTime .Episodes | humanSeconds }} of unlistened time</p>
         </li>  
       {{ end }}
     </ul>

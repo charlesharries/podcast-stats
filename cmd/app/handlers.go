@@ -29,15 +29,48 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var ss []TemplateSubscription
+	var stats TemplateStats
+
 	for _, s := range subscriptions {
+		var eps []TemplateEpisode
+
+		listens, err := app.listens.FindByPodcast(currentUser.ID, s.Podcast.ID)
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
+
+		for _, ep := range s.Podcast.Episodes {
+			listened := false
+
+			for _, l := range listens {
+				if l.EpisodeID == ep.ID {
+					listened = true
+					break
+				}
+			}
+
+			eps = append(eps, TemplateEpisode{
+				Title:       ep.Title,
+				PublishedOn: ep.PublishedOn,
+				Duration:    ep.Duration,
+				Listened:    listened,
+			})
+		}
+
+		stats.UnlistenedEps += countUnlistened(eps)
+		stats.UnlistenedTime += unlistenedTime(eps)
+
 		ss = append(ss, TemplateSubscription{
 			CollectionID: s.Podcast.ID,
 			Name:         s.Podcast.Name,
+			Episodes:     eps,
 		})
 	}
 
 	app.render(w, r, "index.tmpl", &templateData{
 		Subscriptions: ss,
+		Stats:         stats,
 	})
 }
 
@@ -343,7 +376,7 @@ func (app *application) podcastPage(w http.ResponseWriter, r *http.Request) {
 		episodeIDs = append(episodeIDs, uint(ep.ID))
 	}
 
-	listens, err := app.listens.FindByPodcast(currentUser.ID, episodeIDs)
+	listens, err := app.listens.FindByEpisodeIDs(currentUser.ID, episodeIDs)
 	if err != nil {
 		app.serverError(w, err)
 		return

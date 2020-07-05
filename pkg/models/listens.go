@@ -50,7 +50,23 @@ func (m *ListenModel) FindAll(userID uint) ([]Listen, error) {
 }
 
 // FindByPodcast gets all listens for the given user ID and the given podcast ID.
-func (m *ListenModel) FindByPodcast(userID uint, episodeIDs []uint) ([]Listen, error) {
+func (m *ListenModel) FindByPodcast(userID uint, podcastID int) ([]Listen, error) {
+	var listens []Listen
+
+	err := m.DB.Where(
+		"user_id = ? AND episode_id IN (?)",
+		userID,
+		m.DB.Table("episodes").Where("podcast_id = ?", podcastID).Select("id").SubQuery(),
+	).Find(&listens).Error
+	if err != nil {
+		return listens, err
+	}
+
+	return listens, nil
+}
+
+// FindByEpisodeIDs gets all listens for the given user ID and the given episode IDs.
+func (m *ListenModel) FindByEpisodeIDs(userID uint, episodeIDs []uint) ([]Listen, error) {
 	var listens []Listen
 
 	err := m.DB.Where("user_id = ? AND episode_id IN (?)", userID, episodeIDs).Find(&listens).Error

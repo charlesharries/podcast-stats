@@ -9,14 +9,14 @@ type SubscriptionModel struct {
 
 // Create inserts a new subscription into the database.
 func (m *SubscriptionModel) Create(podcastID int, userID uint) error {
-	// Mock up the subscription...
-	subscription := &Subscription{
-		PodcastID: podcastID,
-		UserID:    userID,
-	}
+	var subscription Subscription
 
 	// ... and save it to the database.
-	err := m.DB.Create(subscription).Error
+	err := m.DB.FirstOrCreate(&subscription, Subscription{
+		PodcastID: podcastID,
+		UserID:    userID,
+	}).Error
+
 	if err != nil {
 		return m.DB.Error
 	}

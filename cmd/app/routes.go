@@ -38,6 +38,8 @@ func (app *application) routes() http.Handler {
 	// Subscription routes.
 	mux.Post("/subscriptions", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.subscribe)))
 	mux.Post("/subscriptions/delete", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.unsubscribe)))
+	mux.Post("/api/subscriptions", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.apiSubscribe)))
+	mux.Post("/api/subscriptions/delete", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.apiUnsubscribe)))
 
 	mux.Get("/ping", http.HandlerFunc(ping))
 
