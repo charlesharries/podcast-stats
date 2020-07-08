@@ -25,11 +25,26 @@ func (app *application) routes() http.Handler {
 	// Search routes.
 	mux.Get("/search", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.search)))
 
+	// Podcast routes.
+	mux.Post("/refetch", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.fetchEpisodes)))
+	mux.Get("/podcasts/:collectionID", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.podcastPage)))
+
+	// Episode routes.
+	mux.Post("/episodes/:id/listens", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.listen)))
+	mux.Post("/episodes/:id/listens/delete", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.unlisten)))
+	mux.Post("/api/episodes/:id/listens", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.apiListen)))
+	mux.Post("/api/episodes/:id/listens/delete", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.apiUnlisten)))
+
 	// Subscription routes.
 	mux.Post("/subscriptions", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.subscribe)))
 	mux.Post("/subscriptions/delete", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.unsubscribe)))
+	mux.Post("/api/subscriptions", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.apiSubscribe)))
+	mux.Post("/api/subscriptions/delete", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.apiUnsubscribe)))
 
 	mux.Get("/ping", http.HandlerFunc(ping))
+
+	fileServer := http.FileServer(http.Dir("./static"))
+	mux.Get("/static/", http.StripPrefix("/static", fileServer))
 
 	return standardMiddleware.Then(mux)
 }

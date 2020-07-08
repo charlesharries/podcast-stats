@@ -1,0 +1,60 @@
+{{ template "app" . }}
+
+{{ define "title" }}{{ .Podcast.Name }}{{ end }}
+
+{{ define "main" }}
+<div class="Podcast" data-controller="podcast">
+  <h1>{{ .Podcast.Name }}</h1>
+
+  <form action="/refetch" method="POST">
+    <input type="hidden" name="collectionID" value="{{ .Podcast.ID }}">
+    <button type="submit">Refetch</button>
+  </form>
+
+  <h4>Stats</h4>
+  <p>Number of unlistened episodes: <span data-target="podcast.unlistenedEpisodes">{{ countUnlistened .Episodes }}</span></p>
+  <p>Amount of unlistened time: <span data-target="podcast.unlistenedTime">{{ unlistenedTime .Episodes | humanSeconds }}</span></p>
+
+  <h4>Episodes</h4>
+  <ul>
+    {{ range sortByPublishedOn .Episodes }}
+        <li 
+          data-controller="episode" 
+          data-episode-id="{{ .ID }}" 
+          data-episode-listened="{{ .Listened }}"
+          data-target="podcast.episode"
+          data-duration="{{ .Duration }}"
+        >
+            <span>
+              {{ .Title }}<br>
+              <span>Published {{ humanDate .PublishedOn }}</span><br/>
+              <span>{{ humanSeconds .Duration }}</span>
+              <span
+                {{ if .Listened }}{{ else }}style="display: none;"{{ end }}
+                data-target="episode.check"
+              >&check;</span>
+            </span>
+            {{ if .Listened }}
+                <form 
+                  action="/episodes/{{ .ID }}/listens/delete"
+                  method="POST"
+                  data-action="episode#unlisten episode:update->podcast#update"
+                  data-target="episode.form"
+                >
+                    <button type="submit" data-target="episode.button">Unlisten</button>
+                </form>
+            {{ else }}
+                <form 
+                  action="/episodes/{{ .ID }}/listens"
+                  method="POST"
+                  data-target="episode.form"
+                  data-action="episode#listen episode:update->podcast#update"
+                >
+                    <button type="submit" data-target="episode.button">Listen</button>
+                </form>
+            {{ end }}
+        </li>
+    {{ end }}
+  </ul>
+</div>
+{{ end }}
