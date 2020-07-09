@@ -14,6 +14,8 @@
       <span>{{ humanSeconds .Stats.UnlistenedTime }} unlistened time</span>
     </p>
 
+    {{ template "calendar" . }}
+
     <ul>
       {{ range .Subscriptions }}
         <li>

@@ -1,0 +1,7 @@
+{{ define "calendar" }}
+<div class="Calendar">
+    {{ range daysOfTheMonth .CurrentYear .CurrentMonth }}
+        {{ . }}
+    {{ end }}
+</div>
+{{ end }}

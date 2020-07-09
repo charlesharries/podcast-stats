@@ -47,6 +47,7 @@ type TemplateStats struct {
 
 type templateData struct {
 	CurrentYear   int
+	CurrentMonth  time.Month
 	Flash         string
 	Episodes      []TemplateEpisode
 	Form          *forms.Form
@@ -57,6 +58,17 @@ type templateData struct {
 	Stats         TemplateStats
 	Subscriptions []TemplateSubscription
 	User          TemplateUser
+}
+
+// iterate returns a slice of integers up to the given limit. We're
+// using it to run loops within the template.
+func iterate(to int) []int {
+	var nos []int
+	for i := 0; i < to; i++ {
+		nos = append(nos, i)
+	}
+
+	return nos
 }
 
 // humanDate formats time.Time objects into a human-readable format.
@@ -123,6 +135,17 @@ func unlistenedTime(eps []TemplateEpisode) int {
 	return seconds
 }
 
+func daysOfTheMonth(year int, month time.Month) []time.Time {
+	t := time.Date(year, month+1, 0, 0, 0, 0, 0, time.UTC)
+	var days []time.Time
+
+	for day := 1; day <= t.Day(); day++ {
+		days = append(days, time.Date(year, month, day, 0, 0, 0, 0, time.UTC))
+	}
+
+	return days
+}
+
 // byPublishedOn is a custom sort type.
 type byPublishedOn []TemplateEpisode
 
@@ -155,6 +178,8 @@ var functions = template.FuncMap{
 	"sortByPublishedOn": sortByPublishedOn,
 	"unlistenedTime":    unlistenedTime,
 	"humanSeconds":      humanSeconds,
+	"iterate":           iterate,
+	"daysOfTheMonth":    daysOfTheMonth,
 }
 
 // newTemplateCache pre-compiles all of our templates so we're not re-compiling

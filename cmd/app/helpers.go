@@ -52,6 +52,7 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 	}
 
 	td.CurrentYear = time.Now().Year()
+	td.CurrentMonth = time.Now().Month()
 	td.Flash = app.session.PopString(r, "flash")
 	if app.session.Exists(r, "authenticatedUser") {
 		td.User = app.session.Get(r, "authenticatedUser").(TemplateUser)
