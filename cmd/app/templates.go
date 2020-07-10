@@ -164,36 +164,26 @@ func newCalendar(y int, m time.Month, offset int) TemplateCalendar {
 	var months []TemplateMonth
 
 	// if offset is negative, start at offset and work up to 0
-	if offset >= 0 {
-		for i := 0; i <= offset; i++ {
-			t := time.Date(y, m+1+time.Month(i), 0, 0, 0, 0, 0, time.UTC)
-			var days []time.Time
+	start := 0
+	limit := offset
+	if offset < 0 {
+		start = offset
+		limit = 0
+	}
 
-			for day := 1; day <= t.Day(); day++ {
-				days = append(days, time.Date(y, m+time.Month(i), day, 0, 0, 0, 0, time.UTC))
-			}
+	for i := start; i <= limit; i++ {
+		t := time.Date(y, m+1+time.Month(i), 0, 0, 0, 0, 0, time.UTC)
+		var days []time.Time
 
-			months = append(months, TemplateMonth{
-				Days:     days,
-				Name:     days[0].Month().String(),
-				StartDay: int(days[0].Weekday()),
-			})
+		for day := 1; day <= t.Day(); day++ {
+			days = append(days, time.Date(y, m+time.Month(i), day, 0, 0, 0, 0, time.UTC))
 		}
-	} else {
-		for i := offset; i <= 0; i++ {
-			t := time.Date(y, m+1+time.Month(i), 0, 0, 0, 0, 0, time.UTC)
-			var days []time.Time
 
-			for day := 1; day <= t.Day(); day++ {
-				days = append(days, time.Date(y, m+time.Month(i), day, 0, 0, 0, 0, time.UTC))
-			}
-
-			months = append(months, TemplateMonth{
-				Days:     days,
-				Name:     days[0].Month().String(),
-				StartDay: int(days[0].Weekday()),
-			})
-		}
+		months = append(months, TemplateMonth{
+			Days:     days,
+			Name:     days[0].Month().String(),
+			StartDay: int(days[0].Weekday()),
+		})
 	}
 
 	cal.Months = months

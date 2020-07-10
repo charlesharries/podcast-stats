@@ -1,7 +1,5 @@
 {{ define "search-form" }}
 <div class="Search">
-  <h3>Let's get searching.</h3>
-
   {{ with .SearchForm }}
     <form method="GET" action="/search">
       {{ with .Errors.Get "generic" }}

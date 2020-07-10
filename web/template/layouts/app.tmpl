@@ -10,9 +10,7 @@
   <body>
     {{ template "the-header" . }}
 
-    {{ if .User.Email }}
-      <p>{{ .User.Email }}</p>
-    {{ else }}
+    {{ if not .User.Email }}
       <p>Not logged in</p>
     {{ end }}
 

@@ -1,4 +1,8 @@
 :root {
     --white: #fff;
     --black: #000;
+
+    /* Grid */
+    --Grid__width: 1020px;
+    --Grid__padding: 20px;
 }

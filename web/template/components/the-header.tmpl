@@ -1,11 +1,19 @@
 {{ define "the-header" }}
-<header>
+<header class="Header flex justify-between align-center">
+  <p>
+    <a href="/">Podcast Stats</a>
+  </p>
   <nav>
-    <ul>
-      <li>
-        <a href="/">Home</a>
-      </li>
+    <ul class="Nav__list flex">
       {{ if .User.Email }}
+        <li>
+          {{ .User.Email }}
+        </li>
+
+        <li>
+          {{ template "search-form" . }}
+        </li>
+
         <li>
           <form action="/logout" method="POST">
             <button type="submit">Logout</a>
@@ -22,7 +30,5 @@
       {{ end }}
     </ul>
   </nav>
-
-  {{ template "search-form" . }}
 </header>
 {{ end }}
