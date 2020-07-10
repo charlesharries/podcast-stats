@@ -1,7 +1,19 @@
 {{ define "calendar" }}
-<div class="Calendar">
-    {{ range daysOfTheMonth .CurrentYear .CurrentMonth }}
-        {{ . }}
+<ul class="Calendar">
+    {{ range .Calendar.Months }}
+        <li class="Calendar__month">
+            <p>{{ .Name }}</p>
+            <ul class="Calendar__days">
+                {{ range iterate .StartDay }}
+                    <li class="Calendar__day"></li>
+                {{ end }}
+                {{ range .Days }}
+                    <li class="Calendar__day">
+                        {{ .Day }}
+                    </li>
+                {{ end }}
+            </ul>
+        </li>
     {{ end }}
-</div>
+</ul>
 {{ end }}

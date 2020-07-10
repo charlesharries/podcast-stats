@@ -1,0 +1,9 @@
+.Calendar__days {
+    max-width: 600px;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.Calendar__day {
+    width: calc(100% / 7);
+}

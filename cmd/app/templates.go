@@ -45,7 +45,20 @@ type TemplateStats struct {
 	UnlistenedEps  int
 }
 
+// TemplateCalendar is how we render calendars in go templates.
+type TemplateCalendar struct {
+	Months []TemplateMonth
+}
+
+// TemplateMonth is a single month in a TemplateCalendar.
+type TemplateMonth struct {
+	Name     string
+	Days     []time.Time
+	StartDay int
+}
+
 type templateData struct {
+	Calendar      TemplateCalendar
 	CurrentYear   int
 	CurrentMonth  time.Month
 	Flash         string
@@ -144,6 +157,48 @@ func daysOfTheMonth(year int, month time.Month) []time.Time {
 	}
 
 	return days
+}
+
+func newCalendar(y int, m time.Month, offset int) TemplateCalendar {
+	var cal TemplateCalendar
+	var months []TemplateMonth
+
+	// if offset is negative, start at offset and work up to 0
+	if offset >= 0 {
+		for i := 0; i <= offset; i++ {
+			t := time.Date(y, m+1+time.Month(i), 0, 0, 0, 0, 0, time.UTC)
+			var days []time.Time
+
+			for day := 1; day <= t.Day(); day++ {
+				days = append(days, time.Date(y, m+time.Month(i), day, 0, 0, 0, 0, time.UTC))
+			}
+
+			months = append(months, TemplateMonth{
+				Days:     days,
+				Name:     days[0].Month().String(),
+				StartDay: int(days[0].Weekday()),
+			})
+		}
+	} else {
+		for i := offset; i <= 0; i++ {
+			t := time.Date(y, m+1+time.Month(i), 0, 0, 0, 0, 0, time.UTC)
+			var days []time.Time
+
+			for day := 1; day <= t.Day(); day++ {
+				days = append(days, time.Date(y, m+time.Month(i), day, 0, 0, 0, 0, time.UTC))
+			}
+
+			months = append(months, TemplateMonth{
+				Days:     days,
+				Name:     days[0].Month().String(),
+				StartDay: int(days[0].Weekday()),
+			})
+		}
+	}
+
+	cal.Months = months
+
+	return cal
 }
 
 // byPublishedOn is a custom sort type.

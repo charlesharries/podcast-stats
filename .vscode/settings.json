@@ -1,0 +1,9 @@
+{
+    "editor.codeActionsOnSave": {
+      "source.fixAll.stylelint": true
+    },
+    "vsicons.associations.files": [{ "icon": "postcss", "extensions": [".css"] }],
+    "files.associations": {
+      "*.css": "vue-postcss"
+    }
+  }
