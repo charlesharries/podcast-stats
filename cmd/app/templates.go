@@ -32,11 +32,12 @@ type TemplateSubscription struct {
 // episode passed into a template. We only need a subset of episode
 // data in our templates.
 type TemplateEpisode struct {
-	ID          uint
-	Title       string
-	Duration    int
-	PublishedOn time.Time
-	Listened    bool
+	ID           uint
+	Title        string
+	Duration     int
+	PublishedOn  time.Time
+	Listened     bool
+	CollectionID int
 }
 
 // TemplateStats are general global stats about all of your podcasts.
@@ -63,6 +64,7 @@ type templateData struct {
 	CurrentMonth  time.Month
 	Flash         string
 	Episodes      []TemplateEpisode
+	EpisodesByDay map[string][]TemplateEpisode
 	Form          *forms.Form
 	Podcast       models.Podcast
 	Results       ITunesResult
@@ -191,6 +193,25 @@ func newCalendar(y int, m time.Month, offset int) TemplateCalendar {
 	return cal
 }
 
+// episodesByDay arranges all of the user's subscribed episodes by date.
+func episodesByDay(subs []TemplateSubscription) map[string][]TemplateEpisode {
+	dates := map[string][]TemplateEpisode{}
+
+	for _, sub := range subs {
+		for _, ep := range sub.Episodes {
+			date := ep.PublishedOn.Format("2006-01-02")
+			dates[date] = append(dates[date], ep)
+		}
+	}
+
+	return dates
+}
+
+func episodesOnDate(date time.Time, episodes map[string][]TemplateEpisode) []TemplateEpisode {
+	d := date.Format("2006-01-02")
+	return episodes[d]
+}
+
 // byPublishedOn is a custom sort type.
 type byPublishedOn []TemplateEpisode
 
@@ -225,6 +246,7 @@ var functions = template.FuncMap{
 	"humanSeconds":      humanSeconds,
 	"iterate":           iterate,
 	"daysOfTheMonth":    daysOfTheMonth,
+	"episodesOnDate":    episodesOnDate,
 }
 
 // newTemplateCache pre-compiles all of our templates so we're not re-compiling

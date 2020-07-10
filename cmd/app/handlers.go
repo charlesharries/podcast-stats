@@ -51,10 +51,11 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 			}
 
 			eps = append(eps, TemplateEpisode{
-				Title:       ep.Title,
-				PublishedOn: ep.PublishedOn,
-				Duration:    ep.Duration,
-				Listened:    listened,
+				Title:        ep.Title,
+				PublishedOn:  ep.PublishedOn,
+				Duration:     ep.Duration,
+				Listened:     listened,
+				CollectionID: s.Podcast.ID,
 			})
 		}
 
@@ -71,6 +72,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "index.tmpl", &templateData{
 		Subscriptions: ss,
 		Stats:         stats,
+		EpisodesByDay: episodesByDay(ss),
 	})
 }
 

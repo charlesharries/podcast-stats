@@ -1,15 +1,24 @@
 {{ define "calendar" }}
-<ul class="Calendar">
+<ul class="Calendar grid">
     {{ range .Calendar.Months }}
-        <li class="Calendar__month">
+        <li class="Calendar__month grid__item">
             <p>{{ .Name }}</p>
             <ul class="Calendar__days">
                 {{ range iterate .StartDay }}
                     <li class="Calendar__day"></li>
                 {{ end }}
                 {{ range .Days }}
-                    <li class="Calendar__day">
-                        {{ .Day }}
+                    <li class="Calendar__day flex flex-column align-center">
+                        <p>{{ .Day }}</p>
+                        <div class="Calendar__day__episodes flex wrap">
+                            {{ range episodesOnDate . $.EpisodesByDay }}
+                                <a
+                                    href="/podcasts/{{ .CollectionID }}"
+                                    title="{{ .Title }}"
+                                    class="Calendar__day__episode {{ if .Listened }}Calendar__day__episode--listened{{ end }}"
+                                ></a>
+                            {{ end }}
+                        </div>
                     </li>
                 {{ end }}
             </ul>

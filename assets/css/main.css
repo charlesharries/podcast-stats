@@ -8,6 +8,7 @@
 
 /* Layout */
 @import './layout/container';
+@import './layout/grid';
 
 /* Utilities */
 @import './utilities/*.css';
