@@ -6,9 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/gomodule/redigo/redis"
+	"github.com/charlesharries/podcast-stats/pkg/mysqlcache"
 )
 
 // ITunesResult represents the whole response from the iTunes search API.
@@ -31,21 +30,20 @@ func (app *application) getResults(term string) (ITunesResult, error) {
 	var result ITunesResult
 
 	// Check if there's an up-to-date result in the cache first.
-	v, t, err := app.cache.Get(term)
+	val, err := app.cache.Get(term)
 	if err != nil {
-		if !errors.Is(err, redis.ErrNil) {
+		if !errors.Is(err, mysqlcache.ErrCacheExpired) && !errors.Is(err, mysqlcache.ErrCacheMiss) {
 			return result, err
 		}
 	}
 
-	// If the result is less than 24 hours old, return the cache result.
-	yesterday := time.Now().Add(-24 * time.Hour)
-	if t > int(yesterday.Unix()) {
-		err = json.Unmarshal([]byte(v), &result)
+	if len(val) > 0 {
+		err = json.Unmarshal([]byte(val), &result)
 		if err != nil {
 			return result, err
 		}
 
+		app.infoLog.Printf("cache hit: %q", term)
 		return result, nil
 	}
 

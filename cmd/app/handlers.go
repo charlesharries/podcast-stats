@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"sync"
 
 	"github.com/charlesharries/podcast-stats/pkg/forms"
 	"github.com/charlesharries/podcast-stats/pkg/models"
@@ -51,10 +52,11 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 			}
 
 			eps = append(eps, TemplateEpisode{
-				Title:       ep.Title,
-				PublishedOn: ep.PublishedOn,
-				Duration:    ep.Duration,
-				Listened:    listened,
+				Title:        ep.Title,
+				PublishedOn:  ep.PublishedOn,
+				Duration:     ep.Duration,
+				Listened:     listened,
+				CollectionID: s.Podcast.ID,
 			})
 		}
 
@@ -71,6 +73,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, "index.tmpl", &templateData{
 		Subscriptions: ss,
 		Stats:         stats,
+		EpisodesByDay: episodesByDay(ss),
 	})
 }
 
@@ -351,6 +354,45 @@ func (app *application) fetchEpisodes(w http.ResponseWriter, r *http.Request) {
 	app.session.Put(r, "flash", "Fetched new episodes.")
 
 	http.Redirect(w, r, fmt.Sprintf("/podcasts/%d", collectionID), http.StatusSeeOther)
+}
+
+// fetchAllUserEpisodes refetches all of a user's subscriptions
+func (app *application) fetchAllUserEpisodes(w http.ResponseWriter, r *http.Request) {
+	currentUser := app.session.Get(r, "authenticatedUser").(TemplateUser)
+
+	subscriptions, err := app.subscriptions.FindAll(currentUser.ID)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	var wg sync.WaitGroup
+
+	for _, sub := range subscriptions {
+		wg.Add(1)
+
+		go func(sub models.Subscription) {
+			// Save the episodes of the newly subscribed podcast.
+			episodes, err := app.getEpisodes(sub.PodcastID)
+			if err != nil {
+				app.serverError(w, err)
+				return
+			}
+
+			err = app.saveEpisodes(sub.PodcastID, episodes)
+			if err != nil {
+				app.serverError(w, err)
+			}
+
+			wg.Done()
+		}(sub)
+	}
+
+	wg.Wait()
+
+	app.session.Put(r, "flash", "Fetched new episodes.")
+
+	http.Redirect(w, r, fmt.Sprintf("/"), http.StatusSeeOther)
 }
 
 // podcastPage renders a page for an individual podcast.

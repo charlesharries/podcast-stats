@@ -4,14 +4,13 @@
   <head>
     <meta charset="utf-8">
     <title>{{ template "title" . }} | Podcast Stats</title>
+    <link rel="stylesheet" href="/static/main.css" />
   </head>
 
   <body>
     {{ template "the-header" . }}
 
-    {{ if .User.Email }}
-      <p>{{ .User.Email }}</p>
-    {{ else }}
+    {{ if not .User.Email }}
       <p>Not logged in</p>
     {{ end }}
 

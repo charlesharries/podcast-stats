@@ -1,0 +1,14 @@
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    margin-left: calc(-1 * var(--Grid__padding));
+    margin-bottom: calc(-1 * var(--Grid__padding));
+}
+
+.grid__item {
+    display: block;
+    width: 100%;
+    margin-left: var(--Grid__padding);
+    margin-bottom: var(--Grid__padding);
+}

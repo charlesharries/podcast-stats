@@ -1,0 +1,39 @@
+.Calendar__month {
+    max-width: 300px;
+}
+
+.Calendar__days {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.Calendar__day {
+    width: calc(100% / 7);
+    padding: 8px;
+    border-bottom: 1px solid var(--light-grey);
+}
+
+.Calendar__day__episodes {
+    --size: 5px;
+
+    margin-top: 2px;
+    height: var(--size);
+}
+
+.Calendar__day__episode {
+
+    display: inline-block;
+    background: transparent;
+    height: 100%;
+    width: var(--size);
+    border: 1px solid var(--color);
+    border-radius: 100px;
+
+    &--listened {
+        background: var(--color);
+    }
+
+    & + & {
+        margin-left: 2px;
+    }
+}

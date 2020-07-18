@@ -32,11 +32,12 @@ type TemplateSubscription struct {
 // episode passed into a template. We only need a subset of episode
 // data in our templates.
 type TemplateEpisode struct {
-	ID          uint
-	Title       string
-	Duration    int
-	PublishedOn time.Time
-	Listened    bool
+	ID           uint
+	Title        string
+	Duration     int
+	PublishedOn  time.Time
+	Listened     bool
+	CollectionID int
 }
 
 // TemplateStats are general global stats about all of your podcasts.
@@ -45,10 +46,25 @@ type TemplateStats struct {
 	UnlistenedEps  int
 }
 
+// TemplateCalendar is how we render calendars in go templates.
+type TemplateCalendar struct {
+	Months []TemplateMonth
+}
+
+// TemplateMonth is a single month in a TemplateCalendar.
+type TemplateMonth struct {
+	Name     string
+	Days     []time.Time
+	StartDay int
+}
+
 type templateData struct {
+	Calendar      TemplateCalendar
 	CurrentYear   int
+	CurrentMonth  time.Month
 	Flash         string
 	Episodes      []TemplateEpisode
+	EpisodesByDay map[string][]TemplateEpisode
 	Form          *forms.Form
 	Podcast       models.Podcast
 	Results       ITunesResult
@@ -57,6 +73,17 @@ type templateData struct {
 	Stats         TemplateStats
 	Subscriptions []TemplateSubscription
 	User          TemplateUser
+}
+
+// iterate returns a slice of integers up to the given limit. We're
+// using it to run loops within the template.
+func iterate(to int) []int {
+	var nos []int
+	for i := 0; i < to; i++ {
+		nos = append(nos, i)
+	}
+
+	return nos
 }
 
 // humanDate formats time.Time objects into a human-readable format.
@@ -123,6 +150,68 @@ func unlistenedTime(eps []TemplateEpisode) int {
 	return seconds
 }
 
+func daysOfTheMonth(year int, month time.Month) []time.Time {
+	t := time.Date(year, month+1, 0, 0, 0, 0, 0, time.UTC)
+	var days []time.Time
+
+	for day := 1; day <= t.Day(); day++ {
+		days = append(days, time.Date(year, month, day, 0, 0, 0, 0, time.UTC))
+	}
+
+	return days
+}
+
+func newCalendar(y int, m time.Month, offset int) TemplateCalendar {
+	var cal TemplateCalendar
+	var months []TemplateMonth
+
+	// if offset is negative, start at offset and work up to 0
+	start := 0
+	limit := offset
+	if offset < 0 {
+		start = offset
+		limit = 0
+	}
+
+	for i := start; i <= limit; i++ {
+		t := time.Date(y, m+1+time.Month(i), 0, 0, 0, 0, 0, time.UTC)
+		var days []time.Time
+
+		for day := 1; day <= t.Day(); day++ {
+			days = append(days, time.Date(y, m+time.Month(i), day, 0, 0, 0, 0, time.UTC))
+		}
+
+		months = append(months, TemplateMonth{
+			Days:     days,
+			Name:     days[0].Month().String(),
+			StartDay: int(days[0].Weekday()),
+		})
+	}
+
+	cal.Months = months
+
+	return cal
+}
+
+// episodesByDay arranges all of the user's subscribed episodes by date.
+func episodesByDay(subs []TemplateSubscription) map[string][]TemplateEpisode {
+	dates := map[string][]TemplateEpisode{}
+
+	for _, sub := range subs {
+		for _, ep := range sub.Episodes {
+			date := ep.PublishedOn.Format("2006-01-02")
+			dates[date] = append(dates[date], ep)
+		}
+	}
+
+	return dates
+}
+
+func episodesOnDate(date time.Time, episodes map[string][]TemplateEpisode) []TemplateEpisode {
+	d := date.Format("2006-01-02")
+	return episodes[d]
+}
+
 // byPublishedOn is a custom sort type.
 type byPublishedOn []TemplateEpisode
 
@@ -155,6 +244,9 @@ var functions = template.FuncMap{
 	"sortByPublishedOn": sortByPublishedOn,
 	"unlistenedTime":    unlistenedTime,
 	"humanSeconds":      humanSeconds,
+	"iterate":           iterate,
+	"daysOfTheMonth":    daysOfTheMonth,
+	"episodesOnDate":    episodesOnDate,
 }
 
 // newTemplateCache pre-compiles all of our templates so we're not re-compiling

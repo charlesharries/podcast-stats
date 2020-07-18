@@ -1,0 +1,10 @@
+:root {
+    --white: #fff;
+    --black: #000;
+    --color: #5203ad;
+    --light-grey: #dedede;
+
+    /* Grid */
+    --Grid__width: 1020px;
+    --Grid__padding: 20px;
+}

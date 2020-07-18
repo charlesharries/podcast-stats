@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/charlesharries/podcast-stats/pkg/cache"
 	"github.com/charlesharries/podcast-stats/pkg/models"
+	"github.com/charlesharries/podcast-stats/pkg/mysqlcache"
 	"github.com/golangcollege/sessions"
 	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
@@ -19,7 +19,7 @@ import (
 )
 
 type application struct {
-	cache         *cache.Model
+	cache         *mysqlcache.Model
 	errorLog      *log.Logger
 	infoLog       *log.Logger
 	episodes      *models.EpisodeModel
@@ -69,7 +69,7 @@ func main() {
 
 	// Assemble our application struct
 	app := &application{
-		cache:         &cache.Model{Conn: conn},
+		cache:         &mysqlcache.Model{DB: db, Expiry: 24 * time.Hour},
 		errorLog:      errorLog,
 		infoLog:       infoLog,
 		episodes:      &models.EpisodeModel{DB: db},
@@ -122,6 +122,7 @@ func openDB() (*gorm.DB, error) {
 		&models.Podcast{},
 		&models.Subscription{},
 		&models.User{},
+		&mysqlcache.CacheEntry{},
 	)
 
 	return db, nil

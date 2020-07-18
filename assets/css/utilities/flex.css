@@ -1,0 +1,8 @@
+.flex { display: flex; }
+.wrap { flex-wrap: wrap; }
+.flex-column { flex-direction: column; }
+
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+
+.align-center { align-items: center; }
