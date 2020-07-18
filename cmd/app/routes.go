@@ -27,6 +27,7 @@ func (app *application) routes() http.Handler {
 
 	// Podcast routes.
 	mux.Post("/refetch", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.fetchEpisodes)))
+	mux.Get("/refetch-all", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.fetchAllUserEpisodes)))
 	mux.Get("/podcasts/:collectionID", dynamicMiddleware.Append(app.requireAuthentication).ThenFunc(http.HandlerFunc(app.podcastPage)))
 
 	// Episode routes.
