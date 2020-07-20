@@ -1,6 +1,6 @@
 .container {
     width: 100%;
-    max-width: var(--Grid__max-width);
+    max-width: var(--Grid__width);
     padding-left: var(--Grid__padding);
     padding-right: var(--Grid__padding);
     margin-left: auto;

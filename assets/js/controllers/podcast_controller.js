@@ -3,10 +3,6 @@ import { Controller } from 'stimulus';
 export default class extends Controller {
     static targets = ['episode', 'unlistenedTime', 'unlistenedEpisodes']
 
-    connect() {
-        console.log(this.episodeTargets)
-    }
-
     update(e) {
         this.unlistenedEpisodesTarget.innerText = this.unlistenedEls().length
         this.unlistenedTimeTarget.innerText = this.unlistenedTime()

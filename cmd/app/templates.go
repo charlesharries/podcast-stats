@@ -236,6 +236,18 @@ func sortByPublishedOn(eps []TemplateEpisode) []TemplateEpisode {
 	return eps
 }
 
+// episodes from subs 'flattens' an array of TemplateSubscriptions
+// and sorts by date published.
+func episodesFromSubs(subs []TemplateSubscription) []TemplateEpisode {
+	var eps []TemplateEpisode
+
+	for _, sub := range subs {
+		eps = append(eps, sub.Episodes...)
+	}
+
+	return sortByPublishedOn(eps)
+}
+
 // functions passes some functions into our templates.
 var functions = template.FuncMap{
 	"humanDate":         humanDate,
@@ -247,6 +259,7 @@ var functions = template.FuncMap{
 	"iterate":           iterate,
 	"daysOfTheMonth":    daysOfTheMonth,
 	"episodesOnDate":    episodesOnDate,
+	"episodesFromSubs":  episodesFromSubs,
 }
 
 // newTemplateCache pre-compiles all of our templates so we're not re-compiling

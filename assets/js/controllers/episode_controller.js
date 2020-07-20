@@ -26,7 +26,13 @@ export default class extends Controller {
             this.checkTarget.style.display = 'none';
         }
 
-        const updateEvent = new Event('episode:update')
+        const updateEvent = new CustomEvent('episode:update', {
+            detail: {
+                id: this.data.get('id'),
+                listened: this.listened,
+            },
+            bubbles: true,
+        })
         this.formTarget.dispatchEvent(updateEvent)
     }
 

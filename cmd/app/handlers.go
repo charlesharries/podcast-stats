@@ -52,6 +52,7 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 			}
 
 			eps = append(eps, TemplateEpisode{
+				ID:           ep.ID,
 				Title:        ep.Title,
 				PublishedOn:  ep.PublishedOn,
 				Duration:     ep.Duration,

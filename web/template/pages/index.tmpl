@@ -3,33 +3,45 @@
 {{ define "title" }}Home{{ end }}
 
 {{ define "main" }}
-<h1>Dashboard</h1>
+<div class="Home container">
+  <h1>📈 Dashboard</h1>
 
-{{ if eq (len .Subscriptions) 0 }}
-<p>Looks like you don't have any podcasts in your library yet.</p>
+  {{ if eq (len .Subscriptions) 0 }}
+  <p>Looks like you don't have any podcasts in your library yet.</p>
 
-{{ else }}
-<p>
-  <span>{{ .Stats.UnlistenedEps }} unlistened episodes</span>
-  <span>{{ humanSeconds .Stats.UnlistenedTime }} unlistened time</span>
-</p>
+  {{ else }}
+  <p>
+    <span>{{ .Stats.UnlistenedEps }} unlistened episodes</span>
+    <span>{{ humanSeconds .Stats.UnlistenedTime }} unlistened time</span>
+  </p>
 
-{{ template "calendar" . }}
+  {{ template "calendar" . }}
 
-<a href="/refetch-all">Refetch all podcasts</a>
+  <a href="/refetch-all">Refetch all podcasts</a>
 
-<ul>
-  {{ range .Subscriptions }}
-  <li>
-    <h3>
-      <a href="/podcasts/{{ .CollectionID }}">
-        {{ .Name }}
-      </a>
-    </h3>
-    <p>{{ countUnlistened .Episodes }} episodes unlistened</p>
-    <p>{{ unlistenedTime .Episodes | humanSeconds }} of unlistened time</p>
-  </li>
+  <div>
+    <h3>Episodes</h3>
+    <ul>
+      {{ range episodesFromSubs .Subscriptions }}
+        {{ template "base-episode" . }}
+      {{ end }}
+    </ul>
+  </div>
+
+  <ul>
+    {{ range .Subscriptions }}
+      <li>
+        <h3>
+          <a href="/podcasts/{{ .CollectionID }}">
+            {{ .Name }}
+          </a>
+        </h3>
+
+        <p>{{ countUnlistened .Episodes }} episodes unlistened</p>
+        <p>{{ unlistenedTime .Episodes | humanSeconds }} of unlistened time</p>
+      </li>
+    {{ end }}
+  </ul>
   {{ end }}
-</ul>
-{{ end }}
+</div>
 {{ end }}
