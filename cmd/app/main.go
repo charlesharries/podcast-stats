@@ -12,7 +12,6 @@ import (
 	"github.com/charlesharries/podcast-stats/pkg/models"
 	"github.com/charlesharries/podcast-stats/pkg/mysqlcache"
 	"github.com/golangcollege/sessions"
-	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/joho/godotenv"
@@ -48,13 +47,6 @@ func main() {
 		errorLog.Fatal(err)
 	}
 	defer db.Close()
-
-	// Open the connection to our Redis cache.
-	conn, err := openRedis()
-	if err != nil {
-		errorLog.Fatal(err)
-	}
-	defer conn.Close()
 
 	// Compile our templates.
 	templateCache, err := newTemplateCache("./web/template")
@@ -126,20 +118,4 @@ func openDB() (*gorm.DB, error) {
 	)
 
 	return db, nil
-}
-
-func openRedis() (redis.Conn, error) {
-	conn, err := redis.Dial("tcp", os.Getenv("REDIS_HOST"))
-	if err != nil {
-		return nil, err
-	}
-
-	if len(os.Getenv("REDIS_AUTH")) > 0 {
-		_, err = conn.Do("AUTH", os.Getenv("REDIS_AUTH"))
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return conn, nil
 }
