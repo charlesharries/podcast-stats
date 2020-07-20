@@ -34,7 +34,7 @@ type application struct {
 func main() {
 	// Load environment variables
 	err := godotenv.Load()
-	if err != nil {
+	if err != nil && os.Getenv("DB_NAME") != "" {
 		log.Fatal("Couldn't load .env file.")
 	}
 
