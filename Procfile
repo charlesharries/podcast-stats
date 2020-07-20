@@ -1,1 +1,1 @@
-web: bin/app
+web: yarn build && bin/app
