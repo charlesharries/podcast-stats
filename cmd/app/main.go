@@ -75,7 +75,7 @@ func main() {
 
 	// Create a custom server.
 	srv := &http.Server{
-		Addr:         "localhost:" + os.Getenv("PORT"),
+		Addr:         os.Getenv("APP_HOST") + ":" + os.Getenv("PORT"),
 		ErrorLog:     errorLog,
 		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
