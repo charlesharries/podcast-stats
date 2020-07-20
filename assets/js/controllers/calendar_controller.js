@@ -5,7 +5,6 @@ export default class extends Controller {
 
     connect() {
         window.addEventListener('episode:update', this.update)
-        console.log(this.episodeTargets)
     }
 
     disconnect() {

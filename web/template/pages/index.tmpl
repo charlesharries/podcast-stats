@@ -3,7 +3,7 @@
 {{ define "title" }}Home{{ end }}
 
 {{ define "main" }}
-<div class="Home container">
+<div class="Home container" data-controller="home">
   <h1>📈 Dashboard</h1>
 
   {{ if eq (len .Subscriptions) 0 }}
@@ -11,8 +11,13 @@
 
   {{ else }}
   <p>
-    <span>{{ .Stats.UnlistenedEps }} unlistened episodes</span>
-    <span>{{ humanSeconds .Stats.UnlistenedTime }} unlistened time</span>
+    <span>
+      <span data-target="home.unlistenedEpisodes">{{ .Stats.UnlistenedEps }}</span> unlistened episodes
+    </span>
+
+    <span>
+      <span data-target="home.unlistenedTime">{{ humanSeconds .Stats.UnlistenedTime }}</span> unlistened time
+    </span>
   </p>
 
   {{ template "calendar" . }}

@@ -3,7 +3,7 @@
     data-controller="episode" 
     data-episode-id="{{ .ID }}" 
     data-episode-listened="{{ .Listened }}"
-    data-target="podcast.episode"
+    data-target="podcast.episode home.episode"
     data-duration="{{ .Duration }}"
 >
     <span>
@@ -19,7 +19,7 @@
         <form 
             action="/episodes/{{ .ID }}/listens/delete"
             method="POST"
-            data-action="episode#unlisten episode:update->podcast#update"
+            data-action="episode#unlisten episode:update->podcast#update episode:update->home#update"
             data-target="episode.form"
         >
             <button type="submit" data-target="episode.button">Unlisten</button>
@@ -29,7 +29,7 @@
             action="/episodes/{{ .ID }}/listens"
             method="POST"
             data-target="episode.form"
-            data-action="episode#listen episode:update->podcast#update"
+            data-action="episode#listen episode:update->podcast#update episode:update->home#update"
         >
             <button type="submit" data-target="episode.button">Listen</button>
         </form>
