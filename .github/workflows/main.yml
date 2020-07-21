@@ -12,4 +12,9 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
         port: 22
-        script: ls -al
+        script: |
+          cd ${{ secrets.DIRECTORY }}
+          git checkout master
+          git pull origin master
+          go build -o bin/app ./cmd/app
+          pm2 restart podcast-stats
