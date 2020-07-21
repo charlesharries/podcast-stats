@@ -16,5 +16,5 @@ jobs:
           cd ${{ secrets.DIRECTORY }}
           git checkout master
           git pull origin master
-          go build -o bin/app ./cmd/app
+          /usr/local/go/bin/go build -o bin/app ./cmd/app
           pm2 restart podcast-stats
