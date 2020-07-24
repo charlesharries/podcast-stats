@@ -3,7 +3,7 @@ import { Controller} from 'stimulus';
 
 
 export default class extends Controller {
-    static targets = ['form', 'button', 'check']
+    static targets = ['form', 'button']
 
     get listened() {
         return this.data.get('listened') === 'true'
@@ -15,15 +15,13 @@ export default class extends Controller {
 
     updateUI() {
         if (this.listened) {
-            this.element.classList.add('episode--listened')
+            this.element.classList.add('Episode--listened')
             this.buttonTarget.innerText = 'Unlisten';
             this.formTarget.dataset.action = this.formTarget.dataset.action.replace('#listen', '#unlisten')
-            this.checkTarget.style.display = 'inline-block';
         } else {
-            this.element.classList.remove('episode--listened');
+            this.element.classList.remove('Episode--listened');
             this.buttonTarget.innerText = 'Listen';
             this.formTarget.dataset.action = this.formTarget.dataset.action.replace('#unlisten', '#listen')
-            this.checkTarget.style.display = 'none';
         }
 
         const updateEvent = new CustomEvent('episode:update', {

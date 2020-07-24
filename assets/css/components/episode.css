@@ -1,0 +1,30 @@
+.Episode {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-top: 10px;
+    padding-bottom: 10px; 
+
+    & + & {
+       border-top: 1px solid lightgrey;
+    }
+
+    &--listened {
+        background-color: #efefef;
+    }
+
+    & > * {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
+
+.Episode__title {
+    flex: 3;
+}
+
+.Episode__publishedOn,
+.Episode__duration,
+.Episode__action {
+    flex: 1;
+}

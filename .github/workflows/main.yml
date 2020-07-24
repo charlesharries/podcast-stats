@@ -17,4 +17,5 @@ jobs:
           git checkout master
           git pull origin master
           /usr/local/go/bin/go build -o bin/app ./cmd/app
+          /usr/bin/yarn install && /usr/bin/yarn build
           pm2 restart podcast-stats
