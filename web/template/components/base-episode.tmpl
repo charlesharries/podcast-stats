@@ -1,22 +1,18 @@
 {{ define "base-episode" }}
 <li 
+    class="Episode{{ if .Listened }} Episode--listened{{ end }}"
     data-controller="episode" 
     data-episode-id="{{ .ID }}" 
     data-episode-listened="{{ .Listened }}"
     data-target="podcast.episode home.episode"
     data-duration="{{ .Duration }}"
 >
-    <span>
-        {{ .Title }}<br>
-        <span>Published {{ humanDate .PublishedOn }}</span><br/>
-        <span>{{ humanSeconds .Duration }}</span>
-        <span
-            {{ if .Listened }}{{ else }}style="display: none;"{{ end }}
-            data-target="episode.check"
-        >&check;</span>
-    </span>
+    <p class="Episode__title">{{ .Title }}</p>
+    <p class="Episode__publishedOn">{{ humanDate .PublishedOn }}</p>
+    <p class="Episode__duration">{{ humanSeconds .Duration }}</p>
     {{ if .Listened }}
         <form 
+            class="Episode__action"
             action="/episodes/{{ .ID }}/listens/delete"
             method="POST"
             data-action="episode#unlisten episode:update->podcast#update episode:update->home#update"
@@ -26,6 +22,7 @@
         </form>
     {{ else }}
         <form 
+            class="Episode__action"
             action="/episodes/{{ .ID }}/listens"
             method="POST"
             data-target="episode.form"
